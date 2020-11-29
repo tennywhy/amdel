@@ -1,5 +1,5 @@
-#ifndef _display_H_
-#define _display_H_
+#ifndef _displayOld_
+#define _displayOld_
 
 
 	//#include <reg51.h>
@@ -12,9 +12,9 @@
 	//uchar dat1;
 	uchar count1;
 	uchar code_1;
-	uint CCTAB;
-	bool F_Rs485SendStart;
-	bool F_Rs485Busy;
+	//uint CCTAB;
+	uint F_Rs485SendStart;
+	uint F_Rs485Busy;
 	
 
 	//sbit rs  = P3^0;
@@ -60,7 +60,8 @@
 	#define uint  unsigned int
 
 	#define S_LINE    0xc0    // 显示起始行 StartLine+0~63
-	#define PAGE      0xb8    //  页地址设置 PAGE+0~8  
+	#define PAGE      0xb8    //  页地址设置 PAGE+0~8,  0xb8 
+	#define PAGEDWHALF 0xb9
 	#define COL       0x40    //  列地址设置  COL+0~63
 	#define DISON     0x3f    // 显示开
 	//#define DISOFF    (0x3f-1)  //  显示关    ram被置零

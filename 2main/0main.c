@@ -20,10 +20,10 @@ sfr16 TMR2     = 0xCC;                 // Timer2
 //sbit LED = P2^2;	//LED on DK board
 //sbit LD6 = P1^6;	
 sbit TKey = P1^7; //push buttom on DK board
-sbit AKey = P3^3;
-sbit BKey = P3^2;
-sbit CKey = P3^1;
-sbit DKey = P3^0;
+sbit setKey = P3^3;
+sbit rgtKey = P3^2;
+sbit dwnKey = P3^1;
+sbit esckey = P3^0;
 
 sbit FIN0 = P0^2; //digit pulse Input
 //unsigned char keyVar1 = 0;
@@ -53,8 +53,6 @@ unsigned long int LoopNum = 0;
 //-----------------------------------------------------------------------------
 // Global Constants
 //-----------------------------------------------------------------------------
-#define TRUE 1
-#define FALSE 0
 #define BAUDRATE    256000          //8500  Baud rate of UART in bps
 #define ExOSC TRUE  //设置外部晶振
 #define UlONGINT 4294967295
@@ -79,14 +77,18 @@ void LCD_TEST(void);
 //-----------------------------------------------------------------------------
 
 #define UART_BUFFERSIZE 64
-unsigned char UART_Buffer[UART_BUFFERSIZE];
-unsigned char UART_Buffer_Size = 0;
-unsigned char UART_Input_First = 0;
-unsigned char UART_Output_First = 0;
-unsigned char TX_Ready =1;
+uchar UART_Buffer[UART_BUFFERSIZE];
+uchar UART_Buffer_Size = 0;
+uchar UART_Input_First = 0;
+uchar UART_Output_First = 0;
+uchar TX_Ready =1;
 static char Byte;
-unsigned char keyVar;
-unsigned short int knumber  = 1;
+uchar keyVar;
+uchar keyStu=0xff; 
+uchar knumber  = 1;
+uchar setKeyVal=0, rgtKeyVal=0, dwnKeyVal=0, escKeyVal=0;
+uchar setKeyValLast=0xff, rgtKeyValLast=0xff, dwnKeyValLast=0xff, escKeyValLast=0xff;
+
 //-----------------------------------------------------------------------------
 // main() Routine
 //-----------------------------------------------------------------------------
@@ -114,13 +116,16 @@ void main (void)
  	PRT1CF |= 0x40;						// enable P1.6 (LED) as a push-pull output
  	PRT2CF |= 0x0F;	
  	//CheckBusy ();
- 	
- 	Lcd_init();
-	LCD_TEST();
- 	//EA = 1;
 
+ 	Lcd_init();
+	LCD_Clear();
 	
- 	printf("init end \n");
+	//读入参数 
+	ParmReadIn();
+	
+//	Lcd_init();
+ 	//EA = 1;
+ 	//printf("init end \n");
    while (1)
    { 
    	LoopNum ++;
@@ -128,49 +133,14 @@ void main (void)
 	// 闪烁 LED指示灯	  
 	  if (0 == LoopNum % 2000)
 		{
-		LED = ~LED;
+			LED = ~LED;
 		}
 	  
-	 //检测按键，并执行相对应的菜单功能 
-	  if (0 == LoopNum % 400)
+	 //检测按键，并记录按键值
+	  if (0 == LoopNum % 2)
 		{
-		keyCheckNub ++;
-		//printf("=== check key ===\n");
-		port3Var |= P3;
-		//port3Var = 0xAA;
-		//printf("port3 is %X \n", port3Var);
-		//printf("port2 is %X \n", P2);
-		//read_key();
-		if (2 == keyCheckNub)
-			{
-			//printf("port3 is %X \n", port3Var);
-			
-			port3Var |= 0xF0;
-			keyButton = port3Var;
-			keyCheckNub = 0;
-			port3Var = 0;			
-			}
-		if (0XF7 == keyButton)
-			{
-			printf("button is set \n");
-			keyButton = 0xF0;
-			}	
-		if (0XFB == keyButton)
-			{
-			printf("button is right \n");
-			keyButton = 0xF0;
-			}	
-		if (0XFD == keyButton)
-			{
-			printf("button is down \n");
-			keyButton = 0xF0;
-			}	
-		if (0XFE == keyButton)
-			{
-			printf("button is esc \n");
-			keyButton = 0xF0;
-			}	
-		
+			KeyHand();
+			//printf("key exit\n");
 		}
 	  
 	  //串口输入
@@ -198,19 +168,30 @@ void main (void)
 	  
 		}
 	  
-	  //更新LCD显示
-	  if (0 == LoopNum % 2000)
-	  //if (1)
+	  //更新LCD显示  
+	  //显示程序由按键驱动，按键有动作则更新显示
+	  if (0 == LoopNum % 2000)	  	
 		{
-		nBLEN = 0; //打开背光
-		CheckBusy();
+		//CheckBusy();
+//			printf("skey %d %d\n" ,  (short) setKeyValLast, (short) setKeyVal);
+//			printf("rkey %d %d\n" ,  (short) rgtKeyValLast, (short) rgtKeyVal);
+//			printf("dkey %d %d\n" ,  (short) dwnKeyValLast, (short) dwnKeyVal);
+//			printf("ekey %d %d\n" ,  (short) escKeyValLast, (short) escKeyVal);
+		if( 
+			(setKeyValLast != setKeyVal)||
+			(rgtKeyValLast != rgtKeyVal)|| 
+			(dwnKeyValLast != dwnKeyVal)||
+			(escKeyValLast != escKeyVal) )
+			{
+				LcdDisplay();
+				
+			  setKeyValLast = setKeyVal;
+			  rgtKeyValLast = rgtKeyVal;
+			  dwnKeyValLast = dwnKeyVal;
+			  escKeyValLast = escKeyVal;
+			}
 		
-		//printf("lcd display start main point \n");
-		LcdDisplay ();
-		//LCD_TEST();
-	    printf("lcd display end main point\n");
-		nBLEN = 1; //关背光
-		CheckBusy();
+		//CheckBusy();
 		}
 	  
 	  //计算脉冲输入的计算结果
@@ -221,7 +202,10 @@ void main (void)
 		}
 	  
 	  //DebugStop();
-	 
+	  //parameters refresh
+	  gInitTag++;
+	  gInitTag = gInitTag%200;
+
 		 
 
       // If the complete word has been entered via the hyperterminal followed by
@@ -523,23 +507,23 @@ void print_key (void)
 		TKeyVar = TKey;
 		//test the key
 		//printf("\n ===test key start ==== \n");
-		if ((AKey == 1) && (knumber == 1)) { 
-			printf("keyNum %d \n",knumber);
+		if ((setKey == 1) && (knumber == 1)) { 
+			//printf("keyNum %d \n",knumber);
 			TKeyVar = 0;
 			knumber++;
 			keyVar = 0x00;}
-		if ((BKey == 1) && (knumber == 2)) { 
-			printf("keyNum %d \n",knumber);
+		if ((rgtKey == 1) && (knumber == 2)) { 
+			//printf("keyNum %d \n",knumber);
 			TKeyVar = 0;
 			knumber++;
 			keyVar = 0x00;}
-		if ((CKey == 1) && (knumber == 3)) { 
-			printf("keyNum %d \n",knumber);
+		if ((dwnKey == 1) && (knumber == 3)) { 
+			//printf("keyNum %d \n",knumber);
 			TKeyVar = 0;
 			knumber++;
 			keyVar = 0x00;}
-		if ((DKey == 1) && (knumber == 4)) { 
-			printf("keyNum %d \n",knumber);
+		if ((esckey == 1) && (knumber == 4)) { 
+			//printf("keyNum %d \n",knumber);
 
 			knumber=1;
 			keyVar = 0x00;}
@@ -548,24 +532,106 @@ void print_key (void)
 
 }
 
-void read_key (unsigned char keyName)
+void read_key(void)
 {
-if (keyName == 1) {
-	ms_delay(50);
-	if (keyName == 1) {
-		ms_delay(80);
-		if (keyName == 1) {
-			keyVar = 0x01;
-			printf("buttom is pushed down \n");
+	uchar p3L=0xff,i=0;
+	//uchar setKeyVal=0, rgtKeyVal=0, dwnKeyVal=0, escKeyVal=0;
+	//低4位对应4个按键上一状态，1未按，0按下
+	//按键状态必须翻转一次才是有效的按键
+	//uchar keyStu=0xff; 
+	p3L=P3;
+	for(i=0;i<4;i++)
+		{
+			delaym(1);
+			if(!(p3L == P3))
+				{
+					p3L=0xff;
+					break;
+				}	
 		}
-	}	
+	p3L &= 0x0f;  //读取按键状态
+	//printf("%X \n", p3L);
+	// 不允许同时按下两个按键 
+	//keystu=xxxx set rgt dwn esc
+	if(0x07 == p3L)
+		{
+			i=keyStu&0x08; //上一个状态未按
+			if(0x08 == i)
+				{
+					setKeyVal++;
+					keyStu = keyStu&0xf7;
+					i=setKeyVal;
+			 		printf( "set %d\n", (short) i);
+				}
+			//printf("set key invalid");
+		}
+	else if(0x0b == p3L)
+		{
+			i=keyStu&0x04; //上一个状态未按
+			if(0x04 == i)
+				{
+					rgtKeyVal++;
+					keyStu &= 0xfb;
+					//rgtKeyVal++;
+					i=setKeyVal;
+			 		printf( "rgt %d\n", (short) i);
+				}
+		}
+	else if(0x0d == p3L)
+		{
+			i=keyStu&0x02; //上一个状态未按
+			if(0x02 == i)
+				{
+					dwnKeyVal++;
+					keyStu &= 0xfd;
+					//dwnKeyVal++;
+					i=setKeyVal;
+			 		printf( "dwn %d\n", (short) i);
+				}
+		}	
+	else if(0x0e == p3L)
+		{
+			i=keyStu&0x01; //上一个状态未按
+			if(0x01 == i)
+				{
+					setKeyVal = 0;
+					keyStu &= 0xfe;
+					escKeyVal != escKeyVal;
+					i=setKeyVal;
+			 		printf( "esc %d\n", (short) i);
+				}
+		}
+	else if(!0xff == p3L)
+		{ printf( "push one button\n"); }
+	else { keyStu=0xff; 
+			//printf("button reset \n");
+		}
+	//printf("goies111\n");
+	
 }
 
+void KeyHand(void)
+{
+	//printf("enter key hand\n");
+	read_key();
+	//printf("end key hand\n");
 }
 
 void DebugStop (void)
 { 
 	while(1);
+}
+
+
+//把保存的参数读入
+void ParmReadIn(void)
+{
+	uchar i=0;
+	for(i=0;i<25;i++)
+		{
+			parameterCurrent[i] = parameterSet[i][0];
+			
+		}
 }
 //-----------------------------------------------------------------------------
 // End Of File

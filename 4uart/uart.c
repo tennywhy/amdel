@@ -130,10 +130,13 @@ void LCD_TEST(void)
 {
 	unsigned int PORT1VAL;
 	nBLEN = 0; //打开背光
+	rst = 1;
+	delaym(1);
 	rst = 0;
+	delaym(1);
 	_nop_();
 	rst = 1;
-
+	delaym(1);
 	ca();
 	//cs1 = 1; lcd_cs2 = 0;
 	rs  =  0;         //指令

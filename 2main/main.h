@@ -9,14 +9,25 @@
 	//#include <STARTUP.A51>
 
 
+	extern uint parameterCurrent[30];
+	extern uint parameterCurrentTemp[30];
+
+	extern uint code parameterSet[25][4];
+	extern uchar gInitTag=0xff;
+	
+
 	void s_delay(int sec);
 	void ms_delay(int ms);
 	void print_key(void);
-	void read_key(unsigned char keyName);
+	void read_key(void);
 	void CheckBusy(void);
 	void Lcd_init(void);
 	void LcdDisplay(void);
 	void LCD_TEST(void);
+	void KeyHand(void);
+	void ParmReadIn(void);
+
+	
 
 #endif
 

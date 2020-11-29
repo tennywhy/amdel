@@ -1,6 +1,6 @@
 #ifndef _STRUCT_H_
 #define _STRUCT_H_
-#include "define.h"
+#include "defineSTC.h"
 //ÏÔÊ¾×Ö·û´®½á¹¹
 typedef struct {
 	uchar *Str;

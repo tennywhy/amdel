@@ -1,6 +1,7 @@
 //LCD_display
 #include "..\1head\0common.h"
 #include "displayOld.h"
+#include "struct.h"
 
 
 
