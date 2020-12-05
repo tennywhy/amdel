@@ -9,6 +9,15 @@
 	#define Grd2Pwd 2
 	#define Grd3Pwd 3
 
+	#define startStatus 0
+	#define menuEntry 1
+	#define pwdInput 2
+	#define grd1Menu 3
+	#define grd2Menu 4
+	#define grd3Menu 5
+	
+	extern bit setKpressed, rgtKpressed, dwnKpressed, escKpressed; 
+	extern char currentStatus;
 	extern struct{unsigned char edot[32];} code CCTAB[];
 	extern struct{unsigned char edot[16];} code ECTAB[];
 	//extern uchar userParamInput[PARAMlENGTH];
@@ -19,6 +28,7 @@
 //	extern uchar ECTAB[16];
 	extern uchar GchrLocation;
 	extern uchar parameterChanged=0xff;
+	
 	uchar paramNumSplit[PARAMlENGTH]; //参数拆分后保存的位置
 	
 	uchar passwrd=0;
@@ -233,28 +243,41 @@ unsigned char code allStringSet[112][16] = {
 
 void DisplayLogic(void)
 {
+	
 	uchar LoopMenuNum=0;
+	//uchar currentStatus = 0;  //状态机标识
 	//0xff 无高亮显示行
-	//取消键显示初始界面
-	if(escKeyVal!=0) 
+	//取消键显示初始界面,并清零所有按键数，清除密码
+	if(escKpressed) 
 		{
 			setKeyVal=0; 
 			rgtKeyVal=0;
 			dwnKeyVal=0;
 			passwrd =0;
 			escKeyVal=0;
+			currentStatus = 0; //显示开始/状态界面
+			setKpressed = 0;
+			rgtKpressed = 0;
+			dwnKpressed = 0;
+			escKpressed = 0;
 		}
-	switch (setKeyVal)
-		{
+
+	switch (currentStatus)
+		{	
 		//显示状态界面
 		case 0: 
 			LCD_Clear();
 			StaticDisp(0,4,0xff); 
-			rgtKeyVal=0;
-			dwnKeyVal=0;
+			//rgtKeyVal=0;
+			//dwnKeyVal=0;
 			//escKeyVal=0;
+			if ( setKpressed )
+				{
+					currentStatus ++ ;
+				}	
+
 			break;
-		//显示一级参数界面
+		//显示菜单入口界面
 		case 1: 
 			//dwnKeyVal = dwnKeyVal%3;
 			LCD_Clear();
@@ -262,20 +285,34 @@ void DisplayLogic(void)
 			printf("dk %d %d\n", (short) dwnKeyVal%3, (short) dwnKeyVal);
 			rgtKeyVal=0;
 			//escKeyVal=0;
+			if ( setKpressed )
+				{
+					currentStatus ++ ;
+				}	
+
 			break;
 		//显示输入密码界面
 		case 2: 
-				rgtKeyVal=0;
+				//rgtKpressed = 0;
 				//dwnKeyVal=0;
+				dwnKeyVal = 0;
+				///???dwnKeyVal += rgtKpressed;
+				if ( dwnKpressed )
+					{
+						currentStatus ++ ;
+					}	
+
 				LCD_Clear();
 				if(dwnKeyVal%3 == 0) 
 				{
 					StaticDisp(8,4,3); 
 				}
+				
+				//if(dwnKeyVal%3 == 0) {StaticDisp(20,4,3);}
 				if(dwnKeyVal%3 == 1) {StaticDisp(20,4,3);}
 				if(dwnKeyVal%3 == 2) {StaticDisp(72,4,3);}
-				passwrd=3;
-				switch (dwnKeyVal%3)
+				passwrd=0;
+				switch (passwrd)
 					{
 						case 0: 
 							StaticDisp(8,4,3); 

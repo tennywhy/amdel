@@ -87,8 +87,9 @@ uchar keyVar;
 uchar keyStu=0xff; 
 uchar knumber  = 1;
 uchar setKeyVal=0, rgtKeyVal=0, dwnKeyVal=0, escKeyVal=0;
-uchar setKeyValLast=0xff, rgtKeyValLast=0xff, dwnKeyValLast=0xff, escKeyValLast=0xff;
-
+uchar setKeyValLast=0, rgtKeyValLast=0, dwnKeyValLast=0, escKeyValLast=0xff;
+bit setKpressed = 0, rgtKpressed = 0, dwnKpressed = 0, escKpressed = 0;
+uchar currentStatus = 0x00;
 //-----------------------------------------------------------------------------
 // main() Routine
 //-----------------------------------------------------------------------------
@@ -177,7 +178,18 @@ void main (void)
 //			printf("rkey %d %d\n" ,  (short) rgtKeyValLast, (short) rgtKeyVal);
 //			printf("dkey %d %d\n" ,  (short) dwnKeyValLast, (short) dwnKeyVal);
 //			printf("ekey %d %d\n" ,  (short) escKeyValLast, (short) escKeyVal);
-		if( 
+		// 判断是否有键按下
+		if ( setKeyValLast != setKeyVal )
+			{ setKpressed = 1;}
+		if ( rgtKeyValLast != rgtKeyVal )
+			{ rgtKpressed = 1;}
+		if ( dwnKeyValLast != dwnKeyVal )
+			{ dwnKpressed = 1;}
+		if ( escKeyValLast != escKeyVal )
+			{ escKpressed = 1;}
+			  
+		
+		if ( 
 			(setKeyValLast != setKeyVal)||
 			(rgtKeyValLast != rgtKeyVal)|| 
 			(dwnKeyValLast != dwnKeyVal)||
@@ -190,7 +202,11 @@ void main (void)
 			  dwnKeyValLast = dwnKeyVal;
 			  escKeyValLast = escKeyVal;
 			}
-		
+	//处理完按键，
+		setKpressed = 0;
+		rgtKpressed = 0;
+		dwnKpressed = 0;
+		escKpressed = 0;		
 		//CheckBusy();
 		}
 	  
@@ -573,7 +589,7 @@ void read_key(void)
 					rgtKeyVal++;
 					keyStu &= 0xfb;
 					//rgtKeyVal++;
-					i=setKeyVal;
+					i=rgtKeyVal;
 			 		printf( "rgt %d\n", (short) i);
 				}
 		}
@@ -585,7 +601,7 @@ void read_key(void)
 					dwnKeyVal++;
 					keyStu &= 0xfd;
 					//dwnKeyVal++;
-					i=setKeyVal;
+					i=dwnKeyVal;
 			 		printf( "dwn %d\n", (short) i);
 				}
 		}	
@@ -597,7 +613,7 @@ void read_key(void)
 					setKeyVal = 0;
 					keyStu &= 0xfe;
 					escKeyVal != escKeyVal;
-					i=setKeyVal;
+					i=escKeyVal;
 			 		printf( "esc %d\n", (short) i);
 				}
 		}

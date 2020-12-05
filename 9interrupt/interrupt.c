@@ -1,46 +1,4 @@
-//-----------------------------------------------------------------------------
-// F0xx_External_Interrupts.c
-//-----------------------------------------------------------------------------
-// Copyright 2007 Silicon Laboratories, Inc.
-// http://www.silabs.com
-//
-// Program Description:
-//
-// This software shows the necessary configuration to use External Interrupt 0
-// (/INT0) or External Interrupt 1 (/INT1) as an interrupt source.  The code
-// executes the initialization routines and then spins in an infinite while()
-// loop.  If the button on P3.7 (on the target board) is pressed, then the
-// edge-triggered /INT0 input on P0.0 will cause an interrupt and toggle the
-// LED.
-//
-// Pinout:
-//
-// P0.0 - /INT0 (J2 - pin 17)
-// P0.1 - /INT1 (J2 - pin 18)
-//
-// P1.6 - LED
-//
-// P1.7 - SWITCH
-//
-// How To Test:
-//
-// 1) Compile and download code to a 'F00x target board.
-// 2) On the target board, connect the switch side of J1 to either P0.0 for
-//    /INT0 and P0.1 for /INT1.
-// 3) Verify the J3 jumper is in place.
-// 4) Verify the J6 and J9 jumpers are removed.
-// 5) Press the P1.7 switch.  Every time the switch is pressed, the P1.6 LED
-//    should toggle.
-//
-// Target:         C8051F00x
-// Tool chain:     Keil C51 7.50 / Keil EVAL C51
-// Command Line:   None
-//
-//
-// Release 1.0
-//    -Initial Revision (SM)
-//    -19 JUN 2007
-//
+
 
 //-----------------------------------------------------------------------------
 // Include Files
@@ -182,6 +140,51 @@ void INT1_ISR (void) interrupt 2
 {
    LED = !LED;
 }
+
+//-----------------------------------------------------------------------------
+// F0xx_External_Interrupts.c
+//-----------------------------------------------------------------------------
+// Copyright 2007 Silicon Laboratories, Inc.
+// http://www.silabs.com
+//
+// Program Description:
+//
+// This software shows the necessary configuration to use External Interrupt 0
+// (/INT0) or External Interrupt 1 (/INT1) as an interrupt source.  The code
+// executes the initialization routines and then spins in an infinite while()
+// loop.  If the button on P3.7 (on the target board) is pressed, then the
+// edge-triggered /INT0 input on P0.0 will cause an interrupt and toggle the
+// LED.
+//
+// Pinout:
+//
+// P0.0 - /INT0 (J2 - pin 17)
+// P0.1 - /INT1 (J2 - pin 18)
+//
+// P1.6 - LED
+//
+// P1.7 - SWITCH
+//
+// How To Test:
+//
+// 1) Compile and download code to a 'F00x target board.
+// 2) On the target board, connect the switch side of J1 to either P0.0 for
+//    /INT0 and P0.1 for /INT1.
+// 3) Verify the J3 jumper is in place.
+// 4) Verify the J6 and J9 jumpers are removed.
+// 5) Press the P1.7 switch.  Every time the switch is pressed, the P1.6 LED
+//    should toggle.
+//
+// Target:         C8051F00x
+// Tool chain:     Keil C51 7.50 / Keil EVAL C51
+// Command Line:   None
+//
+//
+// Release 1.0
+//    -Initial Revision (SM)
+//    -19 JUN 2007
+//
+
 
 //-----------------------------------------------------------------------------
 // End Of File

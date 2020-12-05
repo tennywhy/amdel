@@ -277,12 +277,14 @@ void LcdDisplay()
 {
 
 	uchar tempa = 0;
-	uchar rowdat, coldat;
+	uchar rowdat, coldat; //行数据，列数据
 	//uchar *chr;
 	//printf("lcdDIS start");
 
 
 	DisplayLogic();
+
+
 	//LCD_Clear();
 //	ParamSetLogic();
 
