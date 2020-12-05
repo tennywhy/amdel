@@ -114,7 +114,7 @@ void ScanKey()
 	while(key)
 	{
 		delaym(50);
-	 };
+	}
 	while(!key)
 	{
 		delaym(20);
@@ -273,6 +273,8 @@ void Lcd_init()
 	//printf("lcd start 333");
 	//DebugStop();
 }
+
+#if 0
 void LcdDisplay()
 {
 
@@ -300,6 +302,16 @@ void LcdDisplay()
 //		}
 
 }
+#else
+void LcdDisplay(menu_disp_t *disp)
+{
+	uchar tempa = 0;
+	uchar rowdat, coldat; //行数据，列数据
+	//uchar *chr;
+	//printf("lcdDIS start");
+	DisplayLogic(disp);
+}
+#endif
 
 void timer() interrupt 1            ///////////中断入口
 {

@@ -17,7 +17,7 @@
 	#define grd3Menu 5
 	
 	extern bit setKpressed, rgtKpressed, dwnKpressed, escKpressed; 
-	extern char currentStatus;
+	extern char currentStatus, passwrdRead;
 	extern struct{unsigned char edot[32];} code CCTAB[];
 	extern struct{unsigned char edot[16];} code ECTAB[];
 	//extern uchar userParamInput[PARAMlENGTH];
@@ -83,6 +83,7 @@ unsigned char code allStringSet[112][16] = {
 	{spn(1),chn2,chndh,er,jii,can,shu,she,zhi,0xff},
 	{spn(1),chn3,chndh,shuu,chu,she,zhi,0xff},
 	{0xff},
+	//一级参数密码
 	//fisrt param set //8
 	{yii,jii,can,shu,mi,ma,0xff},
 	{0xff},
@@ -99,7 +100,7 @@ unsigned char code allStringSet[112][16] = {
 	{chnR,chna,chnn,chng,chne,chnmh,chn0,chnjh,chn6,chn0,chn0,chn0,chn0,0xff},
 	{0xff},
 	{0xff},
-	
+	//二级参数密码
 	//second param set  //20
 	{er,jii,can,shu,mi,ma,0xff},
 	{0xff},
@@ -178,7 +179,7 @@ unsigned char code allStringSet[112][16] = {
 	{0xff},
 	{0xff},
 	//{spn(12),chnN,chno,0xff},
-	
+	//三级参数密码 校准密码
 	//third param set //18x4
 	{jiao,zhun,mi,ma,0xff},
 	{0xff},
@@ -241,42 +242,113 @@ unsigned char code allStringSet[112][16] = {
 	//{spn(12),chnN,chno,0xff},
 };
 
-void DisplayLogic(void)
+void paswd_disp(menu_disp_t *disp)
 {
+
+	LCD_Clear();
+	//显示输入密码界面，并回读输入密码，
+	//如果正确则进入行相应的菜单循环
+	switch (disp->top_menu_disp_status)
+	{   
+		case 0: 
+			StaticDisp(8,4,3); 
+			passwrd = Grd1Pwd;
+		//ReadPwd();
+			break;	
+		case 1: 
+			StaticDisp(20,4,3);
+			passwrd = Grd2Pwd;
+		//ReadPwd();
+			break;								
+		case 2: 
+			StaticDisp(72,4,3); 
+			passwrd = Grd3Pwd;
+		//ReadPwd();
+			break;
+		default:
+			break;
+	}
 	
-	uchar LoopMenuNum=0;
+	//passwrdRead = ReadPwd();
+	passwrdRead = 0;
+	disp->sub_menu_disp_flag = TRUE;
+	if (passwrdRead == passwrd)	{
+		disp->sub_menu_disp_flag = TRUE;
+		disp->pswd_enter_flag = FALSE;
+	} else {
+		//密码错误显示信息
+		//同时将进入密码输入flag
+		disp->pswd_enter_flag = TRUE;
+		disp->sub_menu_disp_flag = FALSE;
+	}
+	
+	return;
+}
+
+void sub_menu_disp(menu_disp_t *disp)
+{
+	uchar cur_status = disp->sub_menu_disp_status;
+	
+	switch (disp->top_menu_disp_status) {
+	case 0:  // 进入子菜单1
+			//passwrd=1;
+		LCD_Clear();
+		StaticDisp(3*4+(cur_status)%2*4,4,3); 
+		ParamSetLogic((cur_status)%2);
+		break;
+	case 1:  // 进入子菜单2
+		//passwrd=2;
+		LCD_Clear();
+		StaticDisp(7*4+(cur_status-3)%12*4,4,3); 
+		ParamSetLogic(2+(cur_status-3)%12);
+		break;
+	case 2:  // 进入子菜单3
+			//passwrd=3;
+		LCD_Clear();
+		StaticDisp(18*4+(cur_status-3)%8*4,4,3);
+		ParamSetLogic(14+(cur_status-3)%8);
+		break;
+	default:
+		break;
+	}
+	//参数正确需要将disp->sub_menu_enter_flag = FALSE;
+	//参数错误则需要将disp->sub_menu_enter_flag = TRUE;
+}
+
+void DisplayLogic(menu_disp_t *disp)
+{
+	uchar LoopMenuNum = 0;
+	uchar top_disp_status = disp->top_menu_disp_status;
 	//uchar currentStatus = 0;  //状态机标识
 	//0xff 无高亮显示行
 	//取消键显示初始界面,并清零所有按键数，清除密码
-	if(escKpressed) 
-		{
-			setKeyVal=0; 
-			rgtKeyVal=0;
-			dwnKeyVal=0;
-			passwrd =0;
-			escKeyVal=0;
-			currentStatus = 0; //显示开始/状态界面
-			setKpressed = 0;
-			rgtKpressed = 0;
-			dwnKpressed = 0;
-			escKpressed = 0;
-		}
 
-	switch (currentStatus)
-		{	
-		//显示状态界面
-		case 0: 
-			LCD_Clear();
-			StaticDisp(0,4,0xff); 
-			//rgtKeyVal=0;
-			//dwnKeyVal=0;
-			//escKeyVal=0;
-			if ( setKpressed )
-				{
-					currentStatus ++ ;
-				}	
-
-			break;
+	// status disp
+	if (disp->menu_disp_flag) {
+		LCD_Clear();
+		StaticDisp(0,4,0xff);
+		return;
+	}
+	
+#if 1
+	if (disp->sub_menu_disp_flag) {
+		sub_menu_disp(disp);
+		return;
+	}
+	
+	if (disp->pswd_menu_disp_flag) {
+		paswd_disp(disp);
+		return;
+	}
+	
+	if (disp->top_menu_disp_flag) {
+		LCD_Clear();
+		StaticDisp(4, 4, top_disp_status);
+		return;
+	}
+#else
+	switch (top_disp_status)
+	{	
 		//显示菜单入口界面
 		case 1: 
 			//dwnKeyVal = dwnKeyVal%3;
@@ -285,79 +357,41 @@ void DisplayLogic(void)
 			printf("dk %d %d\n", (short) dwnKeyVal%3, (short) dwnKeyVal);
 			rgtKeyVal=0;
 			//escKeyVal=0;
-			if ( setKpressed )
-				{
-					currentStatus ++ ;
-				}	
+//			if ( setKpressed )
+//				{
+//					currentStatus ++ ;
+//				}	
 
 			break;
 		//显示输入密码界面
 		case 2: 
-				//rgtKpressed = 0;
-				//dwnKeyVal=0;
-				dwnKeyVal = 0;
-				///???dwnKeyVal += rgtKpressed;
-				if ( dwnKpressed )
-					{
-						currentStatus ++ ;
-					}	
+			paswd_disp(NULL);
+			break;
 
+		case 4:  // 进入子菜单1
+				//passwrd=1;
 				LCD_Clear();
-				if(dwnKeyVal%3 == 0) 
-				{
-					StaticDisp(8,4,3); 
-				}
-				
-				//if(dwnKeyVal%3 == 0) {StaticDisp(20,4,3);}
-				if(dwnKeyVal%3 == 1) {StaticDisp(20,4,3);}
-				if(dwnKeyVal%3 == 2) {StaticDisp(72,4,3);}
-				passwrd=0;
-				switch (passwrd)
-					{
-						case 0: 
-							StaticDisp(8,4,3); 
-						//ReadPwd();
-							break;  
-						case 1: 
-							StaticDisp(20,4,3);
-							break; 								
-						case 2: 
-							StaticDisp(72,4,3); 
-							break; 
-					}
+				StaticDisp(3*4+(setKeyVal-3)%2*4,4,3); 
+				ParamSetLogic((setKeyVal-3)%2);	break;  
 				break;
-
-		case 3: 
-				rgtKeyVal=0;
-				//dwnKeyVal=0;
+		case 5:  // 进入子菜单2
+				//passwrd=2;
 				LCD_Clear();
-				passwrd=3;
-				switch (dwnKeyVal%3)
-					{
-						case 0: StaticDisp(8,4,3); 
-						//ReadPwd();
-						break;  
-						case 1: StaticDisp(20,4,3); break; 								
-						case 2: StaticDisp(72,4,3); break; 
-					}
+				StaticDisp(7*4+(setKeyVal-3)%12*4,4,3); 
+				ParamSetLogic(2+(setKeyVal-3)%12);	break; 
 				break;
-		default:  // setkey number >=3
+		case 6:  // 进入子菜单3
 				//passwrd=3;
 				LCD_Clear();
-				//ReadPwd();
-				switch (passwrd)
-					{
-						//在3个字菜单中循环
-						case Grd1Pwd: StaticDisp(3*4+(setKeyVal-3)%2*4,4,3); 
-								ParamSetLogic((setKeyVal-3)%2);	break;  //2 sub menue
-						case Grd2Pwd: StaticDisp(7*4+(setKeyVal-3)%12*4,4,3); 
-								ParamSetLogic(2+(setKeyVal-3)%12);	break; //12
-						case Grd3Pwd: StaticDisp(18*4+(setKeyVal-3)%8*4,4,3);
-								ParamSetLogic(14+(setKeyVal-3)%8);	break; //8
-					}
+				StaticDisp(18*4+(setKeyVal-3)%8*4,4,3);
+				ParamSetLogic(14+(setKeyVal-3)%8);	break; 
 				break;
-		}
-	//printf("menue dispalyed done\n");
+
+		default:  // setkey number >=3
+				printf ( "error mode %d\n", (short) currentStatus);
+				break;
+	}
+#endif
 }
 
 
@@ -475,7 +509,7 @@ void NumberToChar(float *chr)
 	}
 
 //将数组paramNumSplit[5]的字符转成数字
-void CharToNumber(uchar *chr[5], float *number)
+void CharToNumber(uchar *chr, float *number)
 {
 	uchar *chrp;
 	uchar i,j;

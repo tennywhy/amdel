@@ -165,7 +165,7 @@ All rights reserved.
 #define  chnxg  166
 #define  chnbfh  167
 
-	extern uchar setKeyVal, rgtKeyVal, dwnKeyVal, escKeyVal;
+	extern uchar setKeyVal, rgtKeyVal, dwnKeyVal, escKeyVal ;
 	extern uchar setKeyValLast, rgtKeyValLast, dwnKeyValLast, escKeyValLast;
 
 
@@ -173,7 +173,7 @@ All rights reserved.
 	void ParamMenue(void);
 	void StaticDisp(uchar DBrowLine, uchar RowNub, uchar hightLightRow);
 	void PutChnLine(uchar DBrowLine, uchar PageLine, uchar hiLightOn);
-	void DisplayLogic(void);
+	void DisplayLogic(menu_disp_t *disp);
 	void ParamSetLogic(uchar parmCurLine);
 	void DispPramOnSecLine(uchar *chr);
 	void DispPramOnThirdLine(uchar *chr);

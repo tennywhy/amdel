@@ -86,10 +86,11 @@ static char Byte;
 uchar keyVar;
 uchar keyStu=0xff; 
 uchar knumber  = 1;
-uchar setKeyVal=0, rgtKeyVal=0, dwnKeyVal=0, escKeyVal=0;
+uchar setKeyVal=0, rgtKeyVal=0, dwnKeyVal=0, escKeyVal=0, passwrdRead=0;
 uchar setKeyValLast=0, rgtKeyValLast=0, dwnKeyValLast=0, escKeyValLast=0xff;
 bit setKpressed = 0, rgtKpressed = 0, dwnKpressed = 0, escKpressed = 0;
 uchar currentStatus = 0x00;
+menu_disp_t menu_disp;
 //-----------------------------------------------------------------------------
 // main() Routine
 //-----------------------------------------------------------------------------
@@ -106,6 +107,16 @@ void main (void)
     EA = 0;
     WDTCN = 0xDE;                       // Disable watchdog timer
     WDTCN = 0xAD;
+	menu_disp.top_menu_select_row = 1;
+	menu_disp.sub_menu_select_row = 3;
+	menu_disp.top_menu_disp_status = 0;
+	menu_disp.sub_menu_disp_status = 0;
+	menu_disp.menu_disp_flag = TRUE;
+	menu_disp.pswd_enter_flag = FALSE;
+	menu_disp.sub_menu_enter_flag = FALSE;
+	menu_disp.sub_menu_disp_flag = FALSE;
+	menu_disp.top_menu_disp_flag = FALSE;
+	menu_disp.pswd_menu_disp_flag = FALSE;
  
     OSCILLATOR_Init ();                 // Initialize oscillator
     PORT_Init ();                       // Initialize crossbar and GPIO
@@ -195,7 +206,85 @@ void main (void)
 			(dwnKeyValLast != dwnKeyVal)||
 			(escKeyValLast != escKeyVal) )
 			{
-				LcdDisplay();
+				printf("GOE111");
+
+				if (setKpressed) {
+					uchar menu_disp_flg = menu_disp.menu_disp_flag;
+					if (!menu_disp_flg && menu_disp.pswd_menu_disp_flag) {
+						if (menu_disp.sub_menu_disp_flag && !menu_disp.pswd_enter_flag)
+							menu_disp.sub_menu_disp_status++;
+					}
+					
+					if (!menu_disp_flg && menu_disp.top_menu_disp_flag) {
+						menu_disp.pswd_menu_disp_flag = TRUE;
+					}
+					
+					if (menu_disp.menu_disp_flag) {
+						menu_disp.menu_disp_flag = FALSE;
+						menu_disp.top_menu_disp_flag = TRUE;
+						menu_disp.sub_menu_disp_flag  = FALSE;
+						menu_disp.pswd_menu_disp_flag = FALSE;
+					}
+				}
+
+				if (dwnKpressed) {
+					if (!menu_disp.menu_disp_flag
+						&& menu_disp.top_menu_disp_flag
+						&& !menu_disp.pswd_menu_disp_flag) {
+						menu_disp.top_menu_disp_status++;
+						menu_disp.top_menu_disp_status %= 3;
+					}
+
+					//获取输入参数密码
+					if (menu_disp.pswd_menu_disp_flag) {
+					
+					} else if (menu_disp.sub_menu_disp_flag) {
+						//获取子菜单的参数
+					}
+				}
+
+				if (rgtKpressed) {
+					//获取输入参数密码
+					if (menu_disp.pswd_menu_disp_flag) {
+					
+					} else if (menu_disp.sub_menu_disp_flag) {
+						//获取子菜单的参数
+					}
+				}
+				
+				if (escKpressed) 
+				{
+					extern uchar passwrd;
+					if (!menu_disp.pswd_enter_flag || !menu_disp.sub_menu_enter_flag) {
+						menu_disp.menu_disp_flag = TRUE;
+						menu_disp.sub_menu_disp_flag = FALSE;
+						menu_disp.pswd_menu_disp_flag = FALSE;
+						menu_disp.top_menu_disp_status = 0;
+						menu_disp.sub_menu_disp_status = 0;
+						menu_disp.top_menu_select_row = 1;
+						menu_disp.sub_menu_select_col = 0;
+					}
+				#if 0
+					setKeyVal = 0; 
+					rgtKeyVal = 0;
+					dwnKeyVal = 0;
+					passwrd = 0;
+					escKeyVal = 0;
+					currentStatus = 0; //显示开始/状态界面
+					setKpressed = 0;
+					rgtKpressed = 0;
+					dwnKpressed = 0;
+					escKpressed = 0;
+				
+					setKeyValLast = setKeyVal;
+					rgtKeyValLast = rgtKeyVal;
+					dwnKeyValLast = dwnKeyVal;
+					escKeyValLast = escKeyVal;
+				#endif
+					printf("esc reset start\n");
+				}
+				
+				LcdDisplay(&menu_disp);
 				
 			  setKeyValLast = setKeyVal;
 			  rgtKeyValLast = rgtKeyVal;

@@ -13,7 +13,8 @@
 	extern uint parameterCurrentTemp[30];
 
 	extern uint code parameterSet[25][4];
-	extern uchar gInitTag=0xff;
+	extern uchar gInitTag;
+	extern uchar currentStatus;
 	
 
 	void s_delay(int sec);
@@ -22,7 +23,7 @@
 	void read_key(void);
 	void CheckBusy(void);
 	void Lcd_init(void);
-	void LcdDisplay(void);
+	void LcdDisplay(menu_disp_t *disp);
 	void LCD_TEST(void);
 	void KeyHand(void);
 	void ParmReadIn(void);

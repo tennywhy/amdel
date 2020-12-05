@@ -37,11 +37,11 @@ All rights reserved.
 	//#define DISOFF    (0x3f-1)  //  显示关    ram被置零
 	#define DISOFF    0x3e  //  显示关    ram被置零
 
-	#define cl();  lcd_cs1=0;lcd_cs2=1;   // 左选
+	#define cl()  {lcd_cs1=0;lcd_cs2=1;}   // 左选
 	//右选  //因模块FM12864A-3的接口（15脚CS1、16脚lcd_cs2）有误	
-	#define cr();  lcd_cs1=1;lcd_cs2=0;   
-	#define lcd_fullEnable();  lcd_cs1=1;lcd_cs2=1;   //全不选15脚CS1、16脚lcd_cs2   
-	#define lcd_fullDisable();  lcd_cs1=0;lcd_cs2=0;   //全选	  15脚CS1、16脚lcd_cs2   
+	#define cr()  {lcd_cs1=1;lcd_cs2=0;}   
+	#define lcd_fullEnable()  {lcd_cs1=1;lcd_cs2=1;}   //全不选15脚CS1、16脚lcd_cs2   
+	#define lcd_fullDisable()  {lcd_cs1=0;lcd_cs2=0;}   //全选	  15脚CS1、16脚lcd_cs2   
 
 	
 	uchar code fm[];
@@ -69,13 +69,13 @@ All rights reserved.
 	void SendData(uchar dat);   // 发数据
 	void inti(void);
 	void ScanKey(void);
-	void LCDFill(uchar dat1,dat2); // 全半屏幕显示 
+	void LCDFill(uchar dat1,uchar dat2); // 全半屏幕显示 
 	void PutBmp(uchar *p);
 	void Window(void);
 	void CPUinti(void);
 	void LCDRoll(void);
 	void Lcd_init(void);
-	void LcdDisplay(void);
+	void LcdDisplay(menu_disp_t *disp);
 	void PutChnChar(uchar *p, uchar pageOffset, uchar charLoca, uchar colOffset, uchar chrType, uchar hightLight);
 	//void PutChnChar(uchar *p, uchar pageOffset, uchar chrLoc, uchar colOffset, uchar chrType);
 	void SetStcVal(void);
