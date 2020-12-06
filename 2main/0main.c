@@ -286,18 +286,18 @@ void main (void)
 				}
 				
 				LcdDisplay(&menu_disp);
-
+				//处理完所有按键事务后清零
 			  setKeyValLast = setKeyVal;
 			  rgtKeyValLast = rgtKeyVal;
 			  dwnKeyValLast = dwnKeyVal;
 			  escKeyValLast = escKeyVal;				
-
+				//处理完按键，
+				setKpressed = 0;
+				rgtKpressed = 0;
+				dwnKpressed = 0;
+				escKpressed = 0;	
 			}
-	//处理完按键，
-		setKpressed = 0;
-		rgtKpressed = 0;
-		dwnKpressed = 0;
-		escKpressed = 0;		
+	
 		//CheckBusy();
 		}
 	  

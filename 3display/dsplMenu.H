@@ -175,6 +175,7 @@ All rights reserved.
 	void PutChnLine(uchar DBrowLine, uchar PageLine, uchar hiLightOn);
 	void DisplayLogic(menu_disp_t *disp);
 	void ParamSetLogic(uchar parmCurLine);
+	void PswdSetLogic(uchar * pswd[5]);
 	void DispPramOnSecLine(uchar *chr);
 	void DispPramOnThirdLine(uchar *chr);
 	void NumberToChar(uchar *chr);

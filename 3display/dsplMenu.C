@@ -32,6 +32,7 @@
 	uchar paramNumSplit[PARAMlENGTH]; //参数拆分后保存的位置
 	
 	uchar passwrd=0;
+	uchar passwrdsave[5]={0}; //{0}; ???
 	uint code parameterSet[25][4] = {
 	// 预设值 当前值，最小值，最大值，
 	//一级参数
@@ -87,7 +88,7 @@ unsigned char code allStringSet[112][16] = {
 	//fisrt param set //8
 	{yii,jii,can,shu,mi,ma,0xff},
 	{0xff},
-	{spn(11),chn0,chn0,chn0,chn0,chn0,0xff},
+	{spn(11),chnyh,chnyh,chnyh,chnyh,chnyh,0xff},
 	{0xff},
 	
 	{jiao,zhen,ye,ti,mi,du,0xff},
@@ -104,7 +105,7 @@ unsigned char code allStringSet[112][16] = {
 	//second param set  //20
 	{er,jii,can,shu,mi,ma,0xff},
 	{0xff},
-	{spn(11),chn0,chn0,chn0,chn0,chn0,0xff},
+	{spn(11),chnyh,chnyh,chnyh,chnyh,chnyh,0xff},
 	{0xff},
 	
 	{xuan,fuu,gu,ti,mi,du,0xff},
@@ -183,7 +184,7 @@ unsigned char code allStringSet[112][16] = {
 	//third param set //18x4
 	{jiao,zhun,mi,ma,0xff},
 	{0xff},
-	{spn(11),chn0,chn0,chn0,chn0,chn0,0xff},
+	{spn(11),chnyh,chnyh,chnyh,chnyh,chnyh,0xff},
 	{0xff},
 	//{spn(11),chn0,chn0,chn0,chn0,0xff},
 	//20 X4
@@ -252,6 +253,7 @@ void paswd_disp(menu_disp_t *disp)
 	{   
 		case 0: 
 			StaticDisp(8,4,3); 
+			PswdSetLogic(&passwrdsave);
 			passwrd = Grd1Pwd;
 		//ReadPwd();
 			break;	
@@ -320,13 +322,10 @@ void DisplayLogic(menu_disp_t *disp)
 	uchar LoopMenuNum = 0;
 	uchar top_disp_status = disp->top_menu_disp_status;
 	printf ("start menu%d\n", disp->menu_disp_flag);
-	//uchar currentStatus = 0;  //状态机标识
+
 	//0xff 无高亮显示行
 	//取消键显示初始界面,并清零所有按键数，清除密码
-	// status disp
 	if (disp->menu_disp_flag) {
-	
-		//printf ("start %d\n", disp->menu_disp_flag);
 		LCD_Clear();
 		StaticDisp(0,4,0xff);
 		return;
@@ -408,28 +407,25 @@ void ParamSetLogic(uchar parmCurLine)
 	uchar i=0, *chr, j=0;
 	uint quitioent=0;
 	float paramNum, paramNumInt;
-	//paramNum=parameterSet[i][j];
-	
-	//所有的参数不能超限，超限截止
-	//paramNum=32.59;
 	paramNum=parameterSet[parmCurLine][0];
-	//paramNum=parameterCurrent[parmCurLine];
-	//paramNum=56;
-	//paramNum =4;
 	NumberToChar(&paramNum);
-//	for(i=0;i<5;i++)
-//		{ printf("parm i %d %d\n", (uint) paramNumSplit[i], (short) i); }
 	chr = &paramNumSplit[0];
 	DispPramOnSecLine(chr);
-	
-//	CharToNumber(chr, &paramNum);
-	//chr = &paramNumSplit;
-//	chr = &paramNumSplit[0];
-	//DispPramOnThirdLine(chr);
 	ParameterInputDisplay(chr);
-
-	    //parameterSet[i][j]=paramNum;
-
+}
+//密码显示和处理
+void PswdSetLogic(uchar * pswd[])
+{
+	//uint remainder=0;
+	//uchar paramNumSplit[5];
+	uchar *chr;
+	//uint quitioent=0;
+	//float paramNum, paramNumInt;
+	//paramNum=parameterSet[parmCurLine][0];
+	//NumberToChar(&paramNum);
+	chr = &pswd;
+	//DispPramOnSecLine(chr);
+	ParameterInputDisplay(chr);
 }
 
 //将指针指向的一个数组以字符显示出来
