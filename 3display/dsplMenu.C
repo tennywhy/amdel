@@ -319,12 +319,14 @@ void DisplayLogic(menu_disp_t *disp)
 {
 	uchar LoopMenuNum = 0;
 	uchar top_disp_status = disp->top_menu_disp_status;
+	printf ("start menu%d\n", disp->menu_disp_flag);
 	//uchar currentStatus = 0;  //状态机标识
 	//0xff 无高亮显示行
 	//取消键显示初始界面,并清零所有按键数，清除密码
-
 	// status disp
 	if (disp->menu_disp_flag) {
+	
+		//printf ("start %d\n", disp->menu_disp_flag);
 		LCD_Clear();
 		StaticDisp(0,4,0xff);
 		return;

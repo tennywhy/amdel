@@ -206,7 +206,8 @@ void main (void)
 			(dwnKeyValLast != dwnKeyVal)||
 			(escKeyValLast != escKeyVal) )
 			{
-				printf("GOE111");
+
+				printf("GOE111\n");
 
 				if (setKpressed) {
 					uchar menu_disp_flg = menu_disp.menu_disp_flag;
@@ -285,11 +286,12 @@ void main (void)
 				}
 				
 				LcdDisplay(&menu_disp);
-				
+
 			  setKeyValLast = setKeyVal;
 			  rgtKeyValLast = rgtKeyVal;
 			  dwnKeyValLast = dwnKeyVal;
-			  escKeyValLast = escKeyVal;
+			  escKeyValLast = escKeyVal;				
+
 			}
 	//处理完按键，
 		setKpressed = 0;
@@ -699,7 +701,7 @@ void read_key(void)
 			i=keyStu&0x01; //上一个状态未按
 			if(0x01 == i)
 				{
-					setKeyVal = 0;
+					escKeyVal++;
 					keyStu &= 0xfe;
 					escKeyVal != escKeyVal;
 					i=escKeyVal;
