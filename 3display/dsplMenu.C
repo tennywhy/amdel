@@ -89,7 +89,7 @@ unsigned char code allStringSet[112][16] = {
 	//fisrt param set //8
 	{yii,jii,can,shu,mi,ma,0xff},
 	{0xff},
-	{spn(11),chnyh,chnyh,chnyh,chnyh,chnyh,0xff},
+	{spn(11),chn0,chn0,chn0,chn0,chn0,0xff},
 	{0xff},
 	
 	{jiao,zhen,ye,ti,mi,du,0xff},
@@ -290,11 +290,13 @@ void paswd_disp(menu_disp_t *disp)
 			break;	
 		case 1: 
 			StaticDisp(20,4,3);
+			PswdSetLogic(passwrdsave);
 			printf("\n paswd %d \n" , (short) disp->top_menu_disp_status);
 		//ReadPwd();
 			break;								
 		case 2: 
 			StaticDisp(72,4,3); 
+			PswdSetLogic(passwrdsave);
 			printf("\n paswd %d \n" , (short) disp->top_menu_disp_status);
 		//ReadPwd();
 			break;

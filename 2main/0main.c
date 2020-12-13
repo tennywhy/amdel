@@ -269,6 +269,8 @@ void main (void)
 						menu_disp.top_menu_select_row = 1;
 						menu_disp.sub_menu_select_col = 0;
 						menu_disp.pswd_cmp_flag = FALSE;
+					} else {
+						menu_disp.pswd_enter_flag = FALSE;
 					}
 				#if 0
 					setKeyVal = 0; 
