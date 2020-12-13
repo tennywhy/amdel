@@ -111,7 +111,7 @@ void main (void)
 	menu_disp.sub_menu_select_row = 3;
 	menu_disp.top_menu_disp_status = 0;
 	menu_disp.sub_menu_disp_status = 0;
-	menu_disp.menu_disp_flag = TRUE;
+	menu_disp.menu_disp_flag = TRUE        ;
 	menu_disp.pswd_enter_flag = FALSE;
 	menu_disp.sub_menu_enter_flag = FALSE;
 	menu_disp.sub_menu_disp_flag = FALSE;
@@ -214,12 +214,15 @@ void main (void)
 					if (!menu_disp_flg && menu_disp.pswd_menu_disp_flag) {
 						if (menu_disp.sub_menu_disp_flag && !menu_disp.pswd_enter_flag)
 							menu_disp.sub_menu_disp_status++;
+						if (!menu_disp.top_menu_disp_flag)
+							menu_disp.pswd_cmp_flag = TRUE;
 					}
 					
 					if (!menu_disp_flg && menu_disp.top_menu_disp_flag) {
 						menu_disp.pswd_menu_disp_flag = TRUE;
 					}
 					
+					//显示顶层菜单
 					if (menu_disp.menu_disp_flag) {
 						menu_disp.menu_disp_flag = FALSE;
 						menu_disp.top_menu_disp_flag = TRUE;
@@ -227,7 +230,8 @@ void main (void)
 						menu_disp.pswd_menu_disp_flag = FALSE;
 					}
 				}
-
+				
+				// down key 在3个菜单条间循环
 				if (dwnKpressed) {
 					if (!menu_disp.menu_disp_flag
 						&& menu_disp.top_menu_disp_flag
@@ -256,7 +260,7 @@ void main (void)
 				if (escKpressed) 
 				{
 					extern uchar passwrd;
-					if (!menu_disp.pswd_enter_flag || !menu_disp.sub_menu_enter_flag) {
+					if (!menu_disp.pswd_enter_flag) {
 						menu_disp.menu_disp_flag = TRUE;
 						menu_disp.sub_menu_disp_flag = FALSE;
 						menu_disp.pswd_menu_disp_flag = FALSE;
@@ -264,6 +268,7 @@ void main (void)
 						menu_disp.sub_menu_disp_status = 0;
 						menu_disp.top_menu_select_row = 1;
 						menu_disp.sub_menu_select_col = 0;
+						menu_disp.pswd_cmp_flag = FALSE;
 					}
 				#if 0
 					setKeyVal = 0; 

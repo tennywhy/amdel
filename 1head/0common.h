@@ -30,6 +30,7 @@ typedef struct {
 	uchar sub_menu_select_row;
 	uchar sub_menu_select_col;
 	uchar pswd_enter_flag;
+	uchar pswd_cmp_flag;
 	uchar menu_disp_flag;
 } menu_disp_t;
 

@@ -30,9 +30,10 @@
 	extern uchar parameterChanged=0xff;
 	
 	uchar paramNumSplit[PARAMlENGTH]; //参数拆分后保存的位置
-	
+	//bit paswrdRight TRUE;
 	uchar passwrd=0;
 	uchar passwrdsave[5]={0}; //{0}; ???
+	uchar passwrdSet[3][5] = {{1,0,0,0,0}, {2,0,0,0,0}, {3,0,0,0,0}};
 	uint code parameterSet[25][4] = {
 	// 预设值 当前值，最小值，最大值，
 	//一级参数
@@ -243,9 +244,39 @@ unsigned char code allStringSet[112][16] = {
 	//{spn(12),chnN,chno,0xff},
 };
 
+uchar pswd_cmp(uchar *src, uchar *dest, uchar len)
+{
+	uchar i = 0;
+
+	for (i = 0; i < len; i++) {
+		if (src[i] != dest[i])
+			return 0;
+	}
+
+	return 1;
+}
+
 void paswd_disp(menu_disp_t *disp)
 {
+	uchar *default_pswd = passwrdSet[disp->top_menu_disp_status];
+	uchar i;
 
+	if (disp->pswd_cmp_flag == TRUE) {
+		disp->pswd_enter_flag = TRUE;
+		if (pswd_cmp(default_pswd, passwrdsave, 5))	{
+			disp->sub_menu_disp_flag = TRUE;
+		} else {
+			//密码错误显示信息
+			//同时将进入密码输入flag
+			SaveCancel();
+			disp->sub_menu_disp_flag = FALSE;
+		}
+		for (i = 0; i < 5; i++)
+			passwrdsave[i] = 0;
+		disp->pswd_cmp_flag = FALSE;
+		return;
+	}
+	
 	LCD_Clear();
 	//显示输入密码界面，并回读输入密码，
 	//如果正确则进入行相应的菜单循环
@@ -253,18 +284,18 @@ void paswd_disp(menu_disp_t *disp)
 	{   
 		case 0: 
 			StaticDisp(8,4,3); 
-			PswdSetLogic(&passwrdsave);
-			passwrd = Grd1Pwd;
+			PswdSetLogic(passwrdsave);
+			printf("\n paswd %d \n" , (short) disp->top_menu_disp_status);
 		//ReadPwd();
 			break;	
 		case 1: 
 			StaticDisp(20,4,3);
-			passwrd = Grd2Pwd;
+			printf("\n paswd %d \n" , (short) disp->top_menu_disp_status);
 		//ReadPwd();
 			break;								
 		case 2: 
 			StaticDisp(72,4,3); 
-			passwrd = Grd3Pwd;
+			printf("\n paswd %d \n" , (short) disp->top_menu_disp_status);
 		//ReadPwd();
 			break;
 		default:
@@ -272,18 +303,7 @@ void paswd_disp(menu_disp_t *disp)
 	}
 	
 	//passwrdRead = ReadPwd();
-	passwrdRead = 0;
-	disp->sub_menu_disp_flag = TRUE;
-	if (passwrdRead == passwrd)	{
-		disp->sub_menu_disp_flag = TRUE;
-		disp->pswd_enter_flag = FALSE;
-	} else {
-		//密码错误显示信息
-		//同时将进入密码输入flag
-		disp->pswd_enter_flag = TRUE;
-		disp->sub_menu_disp_flag = FALSE;
-	}
-	
+
 	return;
 }
 
@@ -333,11 +353,13 @@ void DisplayLogic(menu_disp_t *disp)
 	
 #if 1
 	if (disp->sub_menu_disp_flag) {
+		disp->pswd_enter_flag = FALSE;
 		sub_menu_disp(disp);
 		return;
 	}
 	
 	if (disp->pswd_menu_disp_flag) {
+		disp->top_menu_disp_flag = FALSE;
 		paswd_disp(disp);
 		return;
 	}
@@ -413,19 +435,21 @@ void ParamSetLogic(uchar parmCurLine)
 	DispPramOnSecLine(chr);
 	ParameterInputDisplay(chr);
 }
+
 //密码显示和处理
-void PswdSetLogic(uchar * pswd[])
+void PswdSetLogic(uchar * pswd)
 {
 	//uint remainder=0;
 	//uchar paramNumSplit[5];
-	uchar *chr;
+//	uchar *chr;
 	//uint quitioent=0;
 	//float paramNum, paramNumInt;
 	//paramNum=parameterSet[parmCurLine][0];
 	//NumberToChar(&paramNum);
-	chr = &pswd;
+//	chr = &pswd;
 	//DispPramOnSecLine(chr);
-	ParameterInputDisplay(chr);
+	ParameterInputDisplay(pswd);
+	//ParameterInputDisplay(chr);
 }
 
 //将指针指向的一个数组以字符显示出来
@@ -609,6 +633,9 @@ void ParameterInputDisplay( uchar * userParam)
 		//printf("UPp %d %d %d \n", (short) userParamInput[i], (short) dwnKeyVal, (short) userParam[i]);
 		rgtKeyValLast=rgtKeyVal;
 		//for(i=0;i<PARAMlENGTH;i++) {printf("UPX %d\n", (short) userParamInput[i] ); }
+		for (i = 0; i < PARAMlENGTH; i++) {
+			userParam[i] = userParamInput[i];
+		}
 		
 		//显示当前值
 		//chrp = &userParamInput;
@@ -624,7 +651,8 @@ void ParameterInputDisplay( uchar * userParam)
 					{hiLight=1; }
 				//PutChnChar(chrp, 4, (11+i)*8,0,1,hiLight);
 				PutChnChar(chrp, 4, 11+i,0,1,hiLight);
-				hiLight=0;	
+				hiLight=0;
+				
 			}
 		
 		CharToNumber(userParamInput , &number);
@@ -632,7 +660,7 @@ void ParameterInputDisplay( uchar * userParam)
 		if(numberDft!=number ) {printf("param changed\n");}
 		
 		printf("paramVal DFT %f %f",  number, numberDft);
-		SaveCancel();
+		//SaveCancel();
 		
 		//读值并显示
 		//if()	
@@ -643,6 +671,7 @@ void ParameterInputDisplay( uchar * userParam)
 //按下set 键时在第2行显示 保存或取消，等待确认。
 void SaveCancel(void)
 {
+	
 	
 	//LCD_ClearLine(6,0);
 	//StaticDisp(106,1,0);
