@@ -5,6 +5,9 @@
 #include "display.H"
 #include "..\5msgCalc\msgCalc.h"
 
+	void sub_menu_disp(menu_disp_t *disp);
+
+
 	#define Grd1Pwd 1
 	#define Grd2Pwd 2
 	#define Grd3Pwd 3
@@ -265,6 +268,9 @@ void paswd_disp(menu_disp_t *disp)
 		disp->pswd_enter_flag = TRUE;
 		if (pswd_cmp(default_pswd, passwrdsave, 5))	{
 			disp->sub_menu_disp_flag = TRUE;
+			disp->pswd_enter_flag = FALSE;
+			disp->pswd_menu_disp_flag = FALSE;
+			sub_menu_disp(disp);
 		} else {
 			//密码错误显示信息
 			//同时将进入密码输入flag
