@@ -270,6 +270,7 @@ void paswd_disp(menu_disp_t *disp)
 			disp->sub_menu_disp_flag = TRUE;
 			disp->pswd_enter_flag = FALSE;
 			disp->pswd_menu_disp_flag = FALSE;
+			dwnKeyValLast = dwnKeyVal = 0;
 			sub_menu_disp(disp);
 		} else {
 			//密码错误显示信息
@@ -544,7 +545,7 @@ void NumberToChar(float *chr)
 //将数组paramNumSplit[5]的字符转成数字
 void CharToNumber(uchar *chr, float *number)
 {
-	uchar *chrp;
+	uchar chrp[5];
 	uchar i,j;
 	float paramNum;
 	uint dec=1;
@@ -555,9 +556,10 @@ void CharToNumber(uchar *chr, float *number)
 //	userParamInput[4]=10;
 
 	//chrp=&paramNumSplit[0];
-	chrp=chr;
-	chrp=userParamInput;
-	if( userParamInput[0]>=0 && userParamInput[0] <=9)
+	for (i = 0; i < 5; i++)
+		chrp[i] = chr[i];
+
+	if(userParamInput[0]>=0 && userParamInput[0] <=9)
 		{paramNum = userParamInput[0];}
 	else {paramNum=0; dec=10000;}
 	//paramNum=0;
@@ -629,7 +631,7 @@ void ParameterInputDisplay( uchar * userParam)
 //			{  
 //				numberInput=64; //点号
 //			}
-		//printf("rightkey %d %d\n", (short) rgtKeyVal, (short) rgtKeyValLast, (short) dwnKeyVal);
+		//printf("rightkey %d %d %d\n", (short) rgtKeyVal, (short) rgtKeyValLast, (short) dwnKeyVal);
 		//转换一次，如果是点号（64）则在数字上表示为10，以便进行显示
 		//点号在数组内存储为64，显示时是10
 		i = rgtKeyVal%PARAMlENGTH;
@@ -640,7 +642,9 @@ void ParameterInputDisplay( uchar * userParam)
 		//i = rgtKeyVal%PARAMlENGTH;
 		//delaym(1);
 		//printf("UPp %d %d %d \n", (short) userParamInput[i], (short) dwnKeyVal, (short) userParam[i]);
+		//printf("userParamInput[%d] %d\n", (short) i, (short) userParamInput[i]);
 		userParamInput[i] = (userParamInput[i]+dwnKeyVal-dwnKeyValLast)%11;
+		//printf("userParamInput[%d] %d\n", (short) i, (short) userParamInput[i]);
 		//printf("UPp %d %d %d \n", (short) userParamInput[i], (short) dwnKeyVal, (short) userParam[i]);
 		rgtKeyValLast=rgtKeyVal;
 		//for(i=0;i<PARAMlENGTH;i++) {printf("UPX %d\n", (short) userParamInput[i] ); }
@@ -652,9 +656,10 @@ void ParameterInputDisplay( uchar * userParam)
 		//chrp = &userParamInput;
 		for(i=0;i<PARAMlENGTH;i++)
 			{
+				uchar charIndex = userParamInput[i];
 				//printf("paramNum %d - %d \n", (short) userParamInput[i], (short) chrp);
-				if(userParamInput[i]>=10) {userParamInput[i]=64; }
-				chrp = &ECTAB[userParamInput[i]];
+				if(userParamInput[i] >= 10) {charIndex = 64;}
+				chrp = &ECTAB[charIndex];
 				
 				//chrp = &ECTAB[userParamInput[i]];
 				//printf("paramNum %d - %d \n", (short) userParamInput[i], (short) chrp);
