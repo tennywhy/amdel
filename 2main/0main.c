@@ -182,7 +182,7 @@ void main (void)
 	  
 	  //更新LCD显示  
 	  //显示程序由按键驱动，按键有动作则更新显示
-	  if (0 == LoopNum % 2000)	  	
+	  if (0 == LoopNum % 1000)
 		{
 		//CheckBusy();
 //			printf("skey %d %d\n" ,  (short) setKeyValLast, (short) setKeyVal);
@@ -675,7 +675,7 @@ void read_key(void)
 					setKeyVal++;
 					keyStu = keyStu&0xf7;
 					i=setKeyVal;
-			 		printf( "set %d\n", (short) i);
+			 		//printf( "set %d\n", (short) i);
 				}
 			//printf("set key invalid");
 		}
@@ -688,7 +688,7 @@ void read_key(void)
 					keyStu &= 0xfb;
 					//rgtKeyVal++;
 					i=rgtKeyVal;
-			 		printf( "rgt %d\n", (short) i);
+			 		//printf( "rgt %d\n", (short) i);
 				}
 		}
 	else if(0x0d == p3L)
@@ -700,7 +700,7 @@ void read_key(void)
 					keyStu &= 0xfd;
 					//dwnKeyVal++;
 					i=dwnKeyVal;
-			 		printf( "dwn %d\n", (short) i);
+			 		//printf( "dwn %d\n", (short) i);
 				}
 		}	
 	else if(0x0e == p3L)
@@ -712,11 +712,13 @@ void read_key(void)
 					keyStu &= 0xfe;
 					escKeyVal != escKeyVal;
 					i=escKeyVal;
-			 		printf( "esc %d\n", (short) i);
+			 		//printf( "esc %d\n", (short) i);
 				}
 		}
 	else if(!0xff == p3L)
-		{ printf( "push one button\n"); }
+		{ 
+			//printf( "push one button\n"); 
+		}
 	else { keyStu=0xff; 
 			//printf("button reset \n");
 		}
