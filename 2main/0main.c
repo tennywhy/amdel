@@ -211,9 +211,26 @@ void main (void)
 
 				if (setKpressed) {
 					uchar menu_disp_flg = menu_disp.menu_disp_flag;
-					if (!menu_disp_flg && menu_disp.pswd_menu_disp_flag) {
-						if (menu_disp.sub_menu_disp_flag && !menu_disp.pswd_enter_flag && !menu_disp.pswd_cmp_flag)
+					if (menu_disp.sub_menu_disp_flag && !menu_disp.sub_menu_enter_flag) {
+						switch (menu_disp.top_menu_disp_status) {
+						case 0:
 							menu_disp.sub_menu_disp_status++;
+							menu_disp.sub_menu_disp_status %= 2;
+							break;
+						case 1:
+							menu_disp.sub_menu_disp_status++;
+							menu_disp.sub_menu_disp_status %= 12;
+							break;
+						case 2:
+							menu_disp.sub_menu_disp_status++;
+							menu_disp.sub_menu_disp_status %= 8;
+							break;
+						default:
+							break;
+						}
+					}
+
+					if (!menu_disp_flg && menu_disp.pswd_menu_disp_flag) {
 						if (!menu_disp.top_menu_disp_flag)
 							menu_disp.pswd_cmp_flag = TRUE;
 					}
@@ -254,8 +271,7 @@ void main (void)
 				
 				if (escKpressed) 
 				{
-					extern uchar passwrd;
-					if (!menu_disp.pswd_enter_flag) {
+					if (!menu_disp.pswd_enter_flag && !menu_disp.sub_menu_enter_flag) {
 						menu_disp.menu_disp_flag = TRUE;
 						menu_disp.sub_menu_disp_flag = FALSE;
 						menu_disp.pswd_menu_disp_flag = FALSE;
@@ -267,6 +283,9 @@ void main (void)
 					} else {
 						menu_disp.pswd_enter_flag = FALSE;
 					}
+
+					if (menu_disp.sub_menu_enter_flag)
+						menu_disp.sub_menu_enter_flag = FALSE;
 				#if 0
 					setKeyVal = 0; 
 					rgtKeyVal = 0;

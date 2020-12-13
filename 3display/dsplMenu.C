@@ -34,10 +34,9 @@
 	
 	uchar paramNumSplit[PARAMlENGTH]; //参数拆分后保存的位置
 	//bit paswrdRight TRUE;
-	uchar passwrd=0;
 	uchar passwrdsave[5]={0}; //{0}; ???
 	uchar passwrdSet[3][5] = {{1,0,0,0,0}, {2,0,0,0,0}, {3,0,0,0,0}};
-	uint code parameterSet[25][4] = {
+	float code parameterSet[25][4] = {
 	// 预设值 当前值，最小值，最大值，
 	//一级参数
 		//{63, 63, 1, 99},	//一级参数密码
@@ -71,9 +70,7 @@
 
 
 	//此数组专门保存当前所有的参数值，应保存在铁电存储中
-	float parameterCurrent[30] = {0,0,0,0,0,0,0,0,0,0, 
-								 0,0,0,0,0,0,0,0,0,0,
-								 0,0,0,0,0,0,0,0,0,0};
+	float parameterCurrent[25] = 0.0f;
 	
 
 unsigned char code allStringSet[112][16] = {
@@ -319,29 +316,46 @@ void paswd_disp(menu_disp_t *disp)
 void sub_menu_disp(menu_disp_t *disp)
 {
 	uchar cur_status = disp->sub_menu_disp_status;
+	uchar colpos = 0;
 	
 	switch (disp->top_menu_disp_status) {
 	case 0:  // 进入子菜单1
 			//passwrd=1;
 		LCD_Clear();
 		StaticDisp(3*4+(cur_status)%2*4,4,3); 
-		ParamSetLogic((cur_status)%2);
+		colpos = cur_status % 2;
+		ParamSetLogic(colpos, &parameterCurrent[colpos]);
 		break;
 	case 1:  // 进入子菜单2
 		//passwrd=2;
 		LCD_Clear();
 		StaticDisp(7*4+(cur_status-3)%12*4,4,3); 
-		ParamSetLogic(2+(cur_status-3)%12);
+		colpos = 2 + (cur_status-3) % 12;
+		ParamSetLogic(colpos, &parameterCurrent[colpos]);
 		break;
 	case 2:  // 进入子菜单3
 			//passwrd=3;
 		LCD_Clear();
 		StaticDisp(18*4+(cur_status-3)%8*4,4,3);
-		ParamSetLogic(14+(cur_status-3)%8);
+		colpos = 14+(cur_status-3)%8;
+		ParamSetLogic(colpos, &parameterCurrent[colpos]);
 		break;
 	default:
 		break;
 	}
+
+	disp->sub_menu_enter_flag = FALSE;
+	if (parameterCurrent[colpos] > parameterSet[colpos][2]
+	    && parameterCurrent[colpos] > parameterSet[colpos][3]) {
+	    if (parameterCurrent[colpos] > parameterSet[colpos][1]) {
+			disp->sub_menu_enter_flag = TRUE;
+			disp->pswd_enter_flag = FALSE;
+	    } else {
+	    	SaveCancel();
+	    }
+	}
+
+	printf("get current %f cur_status %d sub status %d\n", parameterCurrent[colpos], (short)disp->top_menu_disp_status, (short)cur_status);
 	//参数正确需要将disp->sub_menu_enter_flag = FALSE;
 	//参数错误则需要将disp->sub_menu_enter_flag = TRUE;
 }
@@ -434,7 +448,7 @@ void DisplayLogic(menu_disp_t *disp)
 
 //完成的功能：把参数数字拆分成字符，显示在第三行
 //把输入的字符数字化，存储在变量中
-void ParamSetLogic(uchar parmCurLine)
+void ParamSetLogic(uchar parmCurLine, float *outVal)
 {
 	uint remainder=0;
 	//uchar paramNumSplit[5];
@@ -445,7 +459,7 @@ void ParamSetLogic(uchar parmCurLine)
 	NumberToChar(&paramNum);
 	chr = &paramNumSplit[0];
 	DispPramOnSecLine(chr);
-	ParameterInputDisplay(chr);
+	ParameterInputDisplay(chr, outVal);
 }
 
 //密码显示和处理
@@ -460,7 +474,7 @@ void PswdSetLogic(uchar * pswd)
 	//NumberToChar(&paramNum);
 //	chr = &pswd;
 	//DispPramOnSecLine(chr);
-	ParameterInputDisplay(pswd);
+	ParameterInputDisplay(pswd, NULL);
 	//ParameterInputDisplay(chr);
 }
 
@@ -546,7 +560,7 @@ void NumberToChar(float *chr)
 void CharToNumber(uchar *chr, float *number)
 {
 	uchar chrp[5];
-	uchar i,j;
+	uchar i;
 	float paramNum;
 	uint dec=1;
 //	userParamInput[0]=2; 
@@ -600,7 +614,7 @@ void CharToNumber(uchar *chr, float *number)
 //等待用户输入
 //右键循环移动，下移循环选中0-9,.号11个字符
 //set 确定， esc 取消
-void ParameterInputDisplay( uchar * userParam) 
+void ParameterInputDisplay(uchar *userParam, float *outval) 
 {
 	//uchar userParamInput[PARAMlENGTH];
 	//uchar userParamInput[PARAMlENGTH];
@@ -671,11 +685,10 @@ void ParameterInputDisplay( uchar * userParam)
 				
 			}
 		
-		CharToNumber(userParamInput , &number);
-		CharToNumber(userParamInput , &numberDft);
-		if(numberDft!=number ) {printf("param changed\n");}
+		CharToNumber(userParamInput, &number);
 		
-		printf("paramVal DFT %f %f",  number, numberDft);
+		if (outval)
+			*outval = number;
 		//SaveCancel();
 		
 		//读值并显示

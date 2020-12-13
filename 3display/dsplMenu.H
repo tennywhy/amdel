@@ -174,13 +174,13 @@ All rights reserved.
 	void StaticDisp(uchar DBrowLine, uchar RowNub, uchar hightLightRow);
 	void PutChnLine(uchar DBrowLine, uchar PageLine, uchar hiLightOn);
 	void DisplayLogic(menu_disp_t *disp);
-	void ParamSetLogic(uchar parmCurLine);
+	void ParamSetLogic(uchar parmCurLine, float *outVal);
 	void PswdSetLogic(uchar * pswd[5]);
 	void DispPramOnSecLine(uchar *chr);
 	void DispPramOnThirdLine(uchar *chr);
 	void NumberToChar(uchar *chr);
 	void CharToNumber(uchar *chr[], float *number);
-	void ParameterInputDisplay( uchar * userParam[]);
+	void ParameterInputDisplay(uchar *userParam, float *outval);
 	void NumberToCharTab(uchar Val, uchar* chrp[], uchar* type );
 	void SaveCancel(void);
 	void LCD_ClearLine(uchar lineNum, uchar clearLength);
