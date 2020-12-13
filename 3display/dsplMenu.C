@@ -354,6 +354,9 @@ void DisplayLogic(menu_disp_t *disp)
 	//0xff 无高亮显示行
 	//取消键显示初始界面,并清零所有按键数，清除密码
 	if (disp->menu_disp_flag) {
+		uchar i;
+		for (i = 0; i < 5; i++)
+			passwrdsave[i] = 0;
 		LCD_Clear();
 		StaticDisp(0,4,0xff);
 		return;
@@ -603,7 +606,7 @@ void ParameterInputDisplay( uchar * userParam)
 	uchar i=0, *chrp;
 	float number=0, numberDft=0,nbVal;
 	//uchar save, cancel;
-	if(setKeyValLast!= setKeyVal) {
+	if(setKeyValLast != setKeyVal) {
 			userParamInput[0]=userParam[0];	
 			userParamInput[1]=userParam[1];
 			userParamInput[2]=userParam[2];

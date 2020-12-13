@@ -212,7 +212,7 @@ void main (void)
 				if (setKpressed) {
 					uchar menu_disp_flg = menu_disp.menu_disp_flag;
 					if (!menu_disp_flg && menu_disp.pswd_menu_disp_flag) {
-						if (menu_disp.sub_menu_disp_flag && !menu_disp.pswd_enter_flag)
+						if (menu_disp.sub_menu_disp_flag && !menu_disp.pswd_enter_flag && !menu_disp.pswd_cmp_flag)
 							menu_disp.sub_menu_disp_status++;
 						if (!menu_disp.top_menu_disp_flag)
 							menu_disp.pswd_cmp_flag = TRUE;
@@ -225,6 +225,7 @@ void main (void)
 					//显示顶层菜单
 					if (menu_disp.menu_disp_flag) {
 						menu_disp.menu_disp_flag = FALSE;
+						dwnKeyValLast = dwnKeyVal = 0;
 						menu_disp.top_menu_disp_flag = TRUE;
 						menu_disp.sub_menu_disp_flag  = FALSE;
 						menu_disp.pswd_menu_disp_flag = FALSE;
@@ -238,13 +239,7 @@ void main (void)
 						&& !menu_disp.pswd_menu_disp_flag) {
 						menu_disp.top_menu_disp_status++;
 						menu_disp.top_menu_disp_status %= 3;
-					}
-
-					//获取输入参数密码
-					if (menu_disp.pswd_menu_disp_flag) {
-					
-					} else if (menu_disp.sub_menu_disp_flag) {
-						//获取子菜单的参数
+						dwnKeyValLast = dwnKeyVal = 0;
 					}
 				}
 
