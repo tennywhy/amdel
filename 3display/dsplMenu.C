@@ -18,8 +18,8 @@
 	#define grd1Menu 3
 	#define grd2Menu 4
 	#define grd3Menu 5
-	
-	extern bit setKpressed, rgtKpressed, dwnKpressed, escKpressed; 
+
+	extern bit setKpressed, rgtKpressed, dwnKpressed, escKpressed;
 	extern char currentStatus, passwrdRead;
 	extern struct{unsigned char edot[32];} code CCTAB[];
 	extern struct{unsigned char edot[16];} code ECTAB[];
@@ -31,7 +31,7 @@
 //	extern uchar ECTAB[16];
 	extern uchar GchrLocation;
 	extern uchar parameterChanged=0xff;
-	
+
 	uchar paramNumSplit[PARAMlENGTH]; //参数拆分后保存的位置
 	//bit paswrdRight TRUE;
 	uchar passwrdsave[5]={0}; //{0}; ???
@@ -42,7 +42,7 @@
 		//{63, 63, 1, 99},	//一级参数密码
 		{2, 2, 1, 99},	//校正液体密度
 		{1000, 1000, 0, 60000},  //校正液体计数率
-	//二级参数		
+	//二级参数
 		//{63, 63, 1, 99},	//二级参数密码
 		{1.4, 1.4, 1, 99999},  //悬浮固体密度
 		{1, 1, 0, 99},	//吸收系数
@@ -71,7 +71,7 @@
 
 	//此数组专门保存当前所有的参数值，应保存在铁电存储中
 	float parameterCurrent[25] = 0.0f;
-	
+
 
 unsigned char code allStringSet[112][16] = {
 		//main status display
@@ -91,7 +91,7 @@ unsigned char code allStringSet[112][16] = {
 	{0xff},
 	{spn(11),chn0,chn0,chn0,chn0,chn0,0xff},
 	{0xff},
-	
+
 	{jiao,zhen,ye,ti,mi,du,0xff},
 	{chnR,chna,chnn,chng,chne,chnmh,chn1,chnjh,chn9,chn9,0xff},
 	{0xff},
@@ -108,18 +108,18 @@ unsigned char code allStringSet[112][16] = {
 	{0xff},
 	{spn(11),chnyh,chnyh,chnyh,chnyh,chnyh,0xff},
 	{0xff},
-	
+
 	{xuan,fuu,gu,ti,mi,du,0xff},
 	{chnR,chna,chnn,chng,chne,chnmh,chn1,chnjh,chn9,chn9,chn9,chn9,chn9,0xff},
 	{0xff},
 	{0xff},
-	
-	
+
+
 	{xi,shou,xii,shu,0xff},
 	{chnR,chna,chnn,chng,chne,chnmh,chn0,chnjh,chn9,chn9,0xff},
 	{0xff},
 	{0xff},
-	
+
 	{chuan,shuu,ye,ti,mi,du,0xff},
 	{chnR,chna,chnn,chng,chne,chnmh,chn0,chnjh,chn9,chn9,0xff},
 	{0xff},
@@ -129,23 +129,23 @@ unsigned char code allStringSet[112][16] = {
 	{chnR,chna,chnn,chng,chne,chnmh,chn0,chnjh,chn9,chn9,0xff},
 	{0xff},
 	{0xff},
-	
+
 	{mi,du,shuu,chu,shang,xian,0xff},
 	{chnR,chna,chnn,chng,chne,chnmh,chn0,chnjh,chn9,chn9,0xff},
 	{0xff},
 	{0xff},
-	
+
 	{nong,du,shuu,chu,xia,xian,0xff},
 	{chnR,chna,chnn,chng,chne,chnmh,chn1,chnjh,chn9,chn9,chn9,chn9,chn9,0xff},
 	{0xff},
 	{0xff},
-	
-	{nong,du,shuu,chu,shang,xian,0xff}, 
+
+	{nong,du,shuu,chu,shang,xian,0xff},
 	{chnR,chna,chnn,chng,chne,chnmh,chn1,chnjh,chn9,chn9,chn9,chn9,chn9,0xff},
 	{0xff},
 	{0xff},
-	
-	
+
+
 	{xuann,zhe,diann,liu,shuu,chu,0xff},
 	//{spn(7),mi,du,diann,liu,0xff},
 	{0xff},
@@ -159,22 +159,22 @@ unsigned char code allStringSet[112][16] = {
 	{0xff},
 	{0xff},
 	//{spn(11),chn9,chn6,chn0,chn0,0xff},
-	
+
 	{jiao,yan,fang,shi,0xff},
 	//{spn(9),wu,jiao,yan,0xff},
 	{0xff},
 	{0xff},
 	{0xff},
 	//{spn(9),wu,jiao,yan,0xff},
-	
-	
+
+
 	{she,bei,hao,0xff},
 	//{spn(13),chn0,chn0,0xff},
 	{0xff},
 	{0xff},
 	{0xff},
 	//{spn(13),chn0,chn0,0xff},
-	
+
 	{hui,fu,she,zhi,0xff},
 	//{spn(12),chnN,chno,0xff},
 	{0xff},
@@ -194,28 +194,28 @@ unsigned char code allStringSet[112][16] = {
 	{0xff},
 	{0xff},
 	//{spn(11),chn0,chn0,chn0,chn0,0xff},
-	
+
 	{shuu,ru,ling,dian,jiao,zhun,chnm,chnA,0xff},
 	{chnR,chna,chnn,chng,chne,chnmh,chn3,chnjh,chn5,0xff},
 	//{spn(10),chn4,chndh,chn0,chn0,chn0,0xff},
 	{0xff},
 	{0xff},
 	//{spn(10),chn4,chndh,chn0,chn0,chn0,0xff},
-	
+
 	{shuu,ru,liang,cheng,jiao,zhun,chnm,chnA,0xff},
 	{chnR,chna,chnn,chng,chne,chnmh,chn1,chn9,chnjh,chn2,chn1,0xff},
 	//{spn(10),chn2,chn0,chndh,chn0,chn0,0xff},
 	{0xff},
 	{0xff},
 	//{spn(10),chn2,chn0,chndh,chn0,chn0,0xff},
-	
+
 	{chn4,chnm,chnA,shuu,chu,jiao,zhun,chnm,chnA,0xff},
 	{chnR,chna,chnn,chng,chne,chnmh,chn3,chnjh,chn5,0xff},
 	//{spn(10),chn0,chndh,chn0,chn0,chn0,0xff},
 	{0xff},
 	{0xff},
 	//{spn(10),chn4,chndh,chn0,chn0,chn0,0xff},
-	
+
 	{chn2,chn0,chnm,chnA,shuu,chu,jiao,zhun,chnm,chnA,0xff},
 	{chnR,chna,chnn,chng,chne,chnmh,chn3,chnjh,chn5,0xff},
 	//{spn(10),chn0,chndh,chn0,chn0,chn0,0xff},
@@ -229,7 +229,7 @@ unsigned char code allStringSet[112][16] = {
 	{0xff},
 	{0xff},
 	//{spn(10),chn1,chn2,chndh,chn0,0xff},
-	
+
 	{bao,cun,she,zhi,0xff},
 	//{spn(12),chnN,chno,0xff},
 	{0xff},
@@ -240,7 +240,7 @@ unsigned char code allStringSet[112][16] = {
 	{shu,zhii,cuo,spn(2),chnE,chnS,chnC,qu,xiao,0xff},
 	{chnS,chnE,chnT,que,ren,spn(2),chnE,chnS,chnC,qu,xiao,0xff},
 	{0xff},
-	
+
 	//{spn(12),chnN,chno,0xff},
 };
 
@@ -280,26 +280,26 @@ void paswd_disp(menu_disp_t *disp)
 		disp->pswd_cmp_flag = FALSE;
 		return;
 	}
-	
+
 	LCD_Clear();
 	//显示输入密码界面，并回读输入密码，
 	//如果正确则进入行相应的菜单循环
 	switch (disp->top_menu_disp_status)
-	{   
-		case 0: 
-			StaticDisp(8,4,3); 
+	{
+		case 0:
+			StaticDisp(8,4,3);
 			PswdSetLogic(passwrdsave);
 			printf("\n paswd %d \n" , (short) disp->top_menu_disp_status);
 		//ReadPwd();
-			break;	
-		case 1: 
+			break;
+		case 1:
 			StaticDisp(20,4,3);
 			PswdSetLogic(passwrdsave);
 			printf("\n paswd %d \n" , (short) disp->top_menu_disp_status);
 		//ReadPwd();
-			break;								
-		case 2: 
-			StaticDisp(72,4,3); 
+			break;
+		case 2:
+			StaticDisp(72,4,3);
 			PswdSetLogic(passwrdsave);
 			printf("\n paswd %d \n" , (short) disp->top_menu_disp_status);
 		//ReadPwd();
@@ -307,7 +307,7 @@ void paswd_disp(menu_disp_t *disp)
 		default:
 			break;
 	}
-	
+
 	//passwrdRead = ReadPwd();
 
 	return;
@@ -317,19 +317,19 @@ void sub_menu_disp(menu_disp_t *disp)
 {
 	uchar cur_status = disp->sub_menu_disp_status;
 	uchar colpos = 0;
-	
+
 	switch (disp->top_menu_disp_status) {
 	case 0:  // 进入子菜单1
 			//passwrd=1;
 		LCD_Clear();
-		StaticDisp(3*4+(cur_status)%2*4,4,3); 
+		StaticDisp(3*4+(cur_status)%2*4,4,3);
 		colpos = cur_status % 2;
 		ParamSetLogic(colpos, &parameterCurrent[colpos]);
 		break;
 	case 1:  // 进入子菜单2
 		//passwrd=2;
 		LCD_Clear();
-		StaticDisp(7*4+(cur_status-3)%12*4,4,3); 
+		StaticDisp(7*4+(cur_status-3)%12*4,4,3);
 		colpos = 2 + (cur_status-3) % 12;
 		ParamSetLogic(colpos, &parameterCurrent[colpos]);
 		break;
@@ -376,20 +376,20 @@ void DisplayLogic(menu_disp_t *disp)
 		StaticDisp(0,4,0xff);
 		return;
 	}
-	
+
 #if 1
 	if (disp->sub_menu_disp_flag) {
 		disp->pswd_enter_flag = FALSE;
 		sub_menu_disp(disp);
 		return;
 	}
-	
+
 	if (disp->pswd_menu_disp_flag) {
 		disp->top_menu_disp_flag = FALSE;
 		paswd_disp(disp);
 		return;
 	}
-	
+
 	if (disp->top_menu_disp_flag) {
 		LCD_Clear();
 		StaticDisp(4, 4, top_disp_status);
@@ -397,43 +397,43 @@ void DisplayLogic(menu_disp_t *disp)
 	}
 #else
 	switch (top_disp_status)
-	{	
+	{
 		//显示菜单入口界面
-		case 1: 
+		case 1:
 			//dwnKeyVal = dwnKeyVal%3;
 			LCD_Clear();
-			StaticDisp(4,4,dwnKeyVal%3); 
+			StaticDisp(4,4,dwnKeyVal%3);
 			printf("dk %d %d\n", (short) dwnKeyVal%3, (short) dwnKeyVal);
 			rgtKeyVal=0;
 			//escKeyVal=0;
 //			if ( setKpressed )
 //				{
 //					currentStatus ++ ;
-//				}	
+//				}
 
 			break;
 		//显示输入密码界面
-		case 2: 
+		case 2:
 			paswd_disp(NULL);
 			break;
 
 		case 4:  // 进入子菜单1
 				//passwrd=1;
 				LCD_Clear();
-				StaticDisp(3*4+(setKeyVal-3)%2*4,4,3); 
-				ParamSetLogic((setKeyVal-3)%2);	break;  
+				StaticDisp(3*4+(setKeyVal-3)%2*4,4,3);
+				ParamSetLogic((setKeyVal-3)%2);	break;
 				break;
 		case 5:  // 进入子菜单2
 				//passwrd=2;
 				LCD_Clear();
-				StaticDisp(7*4+(setKeyVal-3)%12*4,4,3); 
-				ParamSetLogic(2+(setKeyVal-3)%12);	break; 
+				StaticDisp(7*4+(setKeyVal-3)%12*4,4,3);
+				ParamSetLogic(2+(setKeyVal-3)%12);	break;
 				break;
 		case 6:  // 进入子菜单3
 				//passwrd=3;
 				LCD_Clear();
 				StaticDisp(18*4+(setKeyVal-3)%8*4,4,3);
-				ParamSetLogic(14+(setKeyVal-3)%8);	break; 
+				ParamSetLogic(14+(setKeyVal-3)%8);	break;
 				break;
 
 		default:  // setkey number >=3
@@ -495,23 +495,23 @@ void DispPramOnSecLine(uchar *chr)
 //将一个总位数为5位的数字按位拆分到一个
 //长度为5的数组里面
 //如302.953 转成 paramNumSplit=[3][0][2][.][9]
-void NumberToChar(float *chr) 
+void NumberToChar(float *chr)
 	{
 		float paramNum, paramNumFrc, paramNumInt;
 		uint quitioent, remainder;
 		uint temp[PARAMlENGTH];
 		uchar i=0, j=0;
 		paramNum=*chr;
-		if(paramNum>99999) 
+		if(paramNum>99999)
 			{
 				paramNum=99999;
 			}
-		else if(paramNum<0.001) 
+		else if(paramNum<0.001)
 			{
 				paramNum=0;
 			}
-		
-		//将paramNum拆分成整数部分paramNumInt和小数部分paramNumFrc 
+
+		//将paramNum拆分成整数部分paramNumInt和小数部分paramNumFrc
 		paramNumFrc=modf(paramNum, &paramNumInt);
 		//类型转换为uint才能取模
 		quitioent=paramNumInt;
@@ -519,7 +519,7 @@ void NumberToChar(float *chr)
 		//i从1开始，与后面转录匹配
 		for(i=1;i<6;i++)
 			{
-				
+
 				remainder=quitioent%10; //余数
 				quitioent=quitioent/10; //商
 				temp[i-1]=remainder;
@@ -553,60 +553,43 @@ void NumberToChar(float *chr)
 				remainder=quitioent%10;
 				paramNumSplit[j]=remainder;
 				///printf("parm i %d \n", (uint) paramNumSplit[j]);
-			}	
+			}
 	}
 
-//将数组paramNumSplit[5]的字符转成数字
-void CharToNumber(uchar *chr, float *number)
+#define IS_NUM_CHAR(num) (num >= 0 && num <= 9)
+ //将数组paramNumSplit[5]的字符转成数字
+void CharToNumber(uchar *chr, float *number, uchar len)
 {
-	uchar chrp[5];
 	uchar i;
-	float paramNum;
-	uint dec=1;
-//	userParamInput[0]=2; 
-//	userParamInput[1]=0;
-//	userParamInput[2]=1;
-//	userParamInput[3]=0;
-//	userParamInput[4]=10;
+	float paramNum = 0.0f;
+	double dec = 1;
+	uchar dotpos = ~0;
 
-	//chrp=&paramNumSplit[0];
-	for (i = 0; i < 5; i++)
-		chrp[i] = chr[i];
-
-	if(userParamInput[0]>=0 && userParamInput[0] <=9)
-		{paramNum = userParamInput[0];}
-	else {paramNum=0; dec=10000;}
-	//paramNum=0;
-	//paramNum=*chrp;
-	for(i=1;i<5;i++)
-		{
-			if(*(chrp+i)>9 && dec==1)
-				{
-					dec=1*pow(10,(5-i));
-					//printf("paramNumi %d \n", (short) dec);
-					//printf("paramNumi %f \n", dec);
-					printf("goes11");
-					*(chrp+i)=0;
-				}
-			else if(*(chrp+i)>9 && dec!=1) 
-					{
-						*(chrp+i)=0;
-						printf("goies22");
-					}
-			else{
-			printf("goies33");
-			//paramNum = paramNum*10 + *(chrp+i);
-			}
-			paramNum = paramNum*10 + *(chrp+i);
-			printf("paramNum %f %d %d \n \n", paramNum, dec, (short) i);
-
+	/*
+	 * 获取浮点数的实数部分，并将虚数部分转换成实数
+	 * 转换完成后，将虚数部分除以10^n，完成参数的转换
+	 * 例如: char input[5]    float     float
+	 *            1.083   --> 1083 --> 1083 / 10^3 = 1.083
+	 */
+	for (i = 0; i < len; i++) {
+		if (!IS_NUM_CHAR(chr[i])) {
+			dotpos = i;
+		} else {
+			paramNum = (paramNum * 10) + chr[i];
 		}
-		
-		paramNum = paramNum/dec;
-		*number = paramNum;
-		printf("paramNumEnd %f %f \n", paramNum, *number );
-		//printf("paramNum %d \n", paramNum);
-		//printf("param setted %f %d \n", paramNum, dec);		
+	}
+
+	if (dotpos == ~0) {
+		dec = 1.0f;
+	} else {
+		dec = pow(10, i - dotpos - 1);
+	}
+
+	paramNum = paramNum / dec;
+	*number = paramNum;
+	printf("paramNumEnd %f %f \n", paramNum, *number);
+	//printf("paramNum %d \n", paramNum);
+	//printf("param setted %f %d \n", paramNum, dec);
 }
 
 
@@ -614,7 +597,7 @@ void CharToNumber(uchar *chr, float *number)
 //等待用户输入
 //右键循环移动，下移循环选中0-9,.号11个字符
 //set 确定， esc 取消
-void ParameterInputDisplay(uchar *userParam, float *outval) 
+void ParameterInputDisplay(uchar *userParam, float *outval)
 {
 	//uchar userParamInput[PARAMlENGTH];
 	//uchar userParamInput[PARAMlENGTH];
@@ -623,7 +606,7 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 	float number=0, numberDft=0,nbVal;
 	//uchar save, cancel;
 	if(setKeyValLast != setKeyVal) {
-			userParamInput[0]=userParam[0];	
+			userParamInput[0]=userParam[0];
 			userParamInput[1]=userParam[1];
 			userParamInput[2]=userParam[2];
 			userParamInput[3]=userParam[3];
@@ -632,17 +615,17 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 			rgtKeyValLast=0;
 			dwnKeyVal=0;
 			//rgtKeyValLast=0
-			//dwnKeyVal=0; 
+			//dwnKeyVal=0;
 		}
 
 		if(rgtKeyVal!= rgtKeyValLast)
 			{dwnKeyVal=0; dwnKeyValLast=0;}
-			//printf("dwnkeyk %d\n", (short) dwnKeyVal); 
-		
+			//printf("dwnkeyk %d\n", (short) dwnKeyVal);
+
 		//把当前高亮位的输入写入数组内
 		//numberInput = dwnKeyVal%11;
 //		if(numberInput == 10)
-//			{  
+//			{
 //				numberInput=64; //点号
 //			}
 		//printf("rightkey %d %d %d\n", (short) rgtKeyVal, (short) rgtKeyValLast, (short) dwnKeyVal);
@@ -651,7 +634,7 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 		i = rgtKeyVal%PARAMlENGTH;
 		if(userParamInput[i]>10)
 			{userParamInput[i]=10;}
-	
+
 		//for(i=0;i<PARAMlENGTH;i++) {printf("UP %d\n", (short) userParamInput[i] ); }
 		//i = rgtKeyVal%PARAMlENGTH;
 		//delaym(1);
@@ -665,7 +648,7 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 		for (i = 0; i < PARAMlENGTH; i++) {
 			userParam[i] = userParamInput[i];
 		}
-		
+
 		//显示当前值
 		//chrp = &userParamInput;
 		for(i=0;i<PARAMlENGTH;i++)
@@ -674,7 +657,7 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 				//printf("paramNum %d - %d \n", (short) userParamInput[i], (short) chrp);
 				if(userParamInput[i] >= 10) {charIndex = 64;}
 				chrp = &ECTAB[charIndex];
-				
+
 				//chrp = &ECTAB[userParamInput[i]];
 				//printf("paramNum %d - %d \n", (short) userParamInput[i], (short) chrp);
 				if((rgtKeyVal%PARAMlENGTH) == i)
@@ -682,17 +665,17 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 				//PutChnChar(chrp, 4, (11+i)*8,0,1,hiLight);
 				PutChnChar(chrp, 4, 11+i,0,1,hiLight);
 				hiLight=0;
-				
+
 			}
-		
-		CharToNumber(userParamInput, &number);
-		
+
+		CharToNumber(userParamInput, &number, sizeof(userParamInput));
+
 		if (outval)
 			*outval = number;
 		//SaveCancel();
-		
+
 		//读值并显示
-		//if()	
+		//if()
 }
 
 
@@ -700,8 +683,8 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 //按下set 键时在第2行显示 保存或取消，等待确认。
 void SaveCancel(void)
 {
-	
-	
+
+
 	//LCD_ClearLine(6,0);
 	//StaticDisp(106,1,0);
 	PutChnLine(106,3,0);
@@ -724,7 +707,7 @@ void PutChnLine(uchar DBrowLine, uchar PageLine, uchar hiLightOn)
 			GchrLocation=0;
 			//printf("line %d\n", (short) pageNum);
 			for(ichar=0; ichar<16; ichar++)
-				{	
+				{
 					chr = &allStringSet[pageNum][ichar];
 					charSqu = *chr;
 					//如果是结束符0xff 结束当前行显示
@@ -736,18 +719,18 @@ void PutChnLine(uchar DBrowLine, uchar PageLine, uchar hiLightOn)
 						{
 							if(charSqu>200)
 								{
-									GchrLocation += (charSqu-200);							
+									GchrLocation += (charSqu-200);
 								}
 							else
 								{
 									if(charSqu<100)
 										{
 											chrType=2;
-											chr = &CCTAB[charSqu];	
+											chr = &CCTAB[charSqu];
 										}
 									else if( charSqu>=100 )
-										{ 
-											chrType=1; 
+										{
+											chrType=1;
 											charSqu -=100;
 											chr = &ECTAB[charSqu];
 											//i=charSqu;
@@ -759,7 +742,7 @@ void PutChnLine(uchar DBrowLine, uchar PageLine, uchar hiLightOn)
 									GchrLocation +=chrType;
 									//hiLightOn=0;
 								}
-						}		
+						}
 		}
 }
 
@@ -771,8 +754,8 @@ void StaticDisp(uchar DBrowLine, uchar RowNub, uchar hightLightRow)
 	uchar dispLine = 0, hiLightOn = 0;
 	uchar Len = 0;
 	for (dispLine = 0; dispLine < RowNub; dispLine++)
-		{		
-			if (dispLine == hightLightRow) 
+		{
+			if (dispLine == hightLightRow)
 			{
 				hiLightOn = 1;
 			}
@@ -798,20 +781,20 @@ void NumberToCharTab(uchar Val, uchar* chrp[], uchar* type )
 					else
 						{
 							if(charSqu>200)
-								{						
+								{
 									GchrLocation += (charSqu-200)*8;
-						
+
 								}
 							else
 								{
 									if(charSqu<100)
 										{
 											chrType=2;
-											chrp = &CCTAB[charSqu];	
+											chrp = &CCTAB[charSqu];
 										}
 									else if( charSqu>=100 )
-										{ 
-											chrType=1; 
+										{
+											chrType=1;
 											charSqu -=100;
 											chrp = &ECTAB[charSqu];
 											//i=charSqu;
@@ -821,7 +804,7 @@ void NumberToCharTab(uchar Val, uchar* chrp[], uchar* type )
 								}
 
 						}
-}	
+}
 
 // 接收两个参数，清除行数，从第几列开始清，清多少位
 //clearLength 高字节表示从第几个字符（8位）开始，
@@ -829,7 +812,7 @@ void NumberToCharTab(uchar Val, uchar* chrp[], uchar* type )
 void LCD_ClearLine(uchar lineNum, uchar clearLength)
 {
 		uchar colStart=0, colLeng=0;
-		uchar i,j;	
+		uchar i,j;
 		colLeng=0x0F&clearLength;
 		colStart=0xf0&clearLength;
 		colStart=colStart/16;
@@ -839,14 +822,14 @@ void LCD_ClearLine(uchar lineNum, uchar clearLength)
 			colStart=colStart-64;
 			{cr();}
 		if(clearLength==0)
-			{ 
+			{
 				lcd_fullEnable();
 				colLeng=64;
 			}
 				SendCommand(COL+colStart);
 		for(j=0;j<2;j++)
 			{
-				SendCommand(PAGE+lineNum+j);	
+				SendCommand(PAGE+lineNum+j);
 				CheckBusy();
 				for(i=0;i<colLeng;i++)
 					{

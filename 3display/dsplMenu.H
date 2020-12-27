@@ -11,11 +11,11 @@ All rights reserved.
 #define PWD1 1
 #define PWD2 2
 #define PWD3 3
-#define PARAMlENGTH 5	
+#define PARAMlENGTH 5
 
 
 
-#define kong 0     //NULL  
+#define kong 0     //NULL
 #define bao 1     //±£
 #define cun 2     //´æ
 #define she 3     //Éè
@@ -90,12 +90,12 @@ All rights reserved.
 #define yee 72    //Ò±
 #define yann 73    //ÑÐ
 #define maoh 62    //:
-													
-#define chrNum 100  //×Ö·ûÊý×ÖÆ«ÒÆ;   
-#define spcNum 200	//¿Õ¸ñÊýÆ«ÒÆ;  
+
+#define chrNum 100  //×Ö·ûÊý×ÖÆ«ÒÆ;
+#define spcNum 200	//¿Õ¸ñÊýÆ«ÒÆ;
 #define chn(charNum) (charNum+100)
 #define spn(spaceN) (spaceN+200)
-													
+
 #define  chn0  100
 #define  chn1  101
 #define  chn2  102
@@ -179,13 +179,13 @@ All rights reserved.
 	void DispPramOnSecLine(uchar *chr);
 	void DispPramOnThirdLine(uchar *chr);
 	void NumberToChar(uchar *chr);
-	void CharToNumber(uchar *chr[], float *number);
+	void CharToNumber(uchar *chr[], float *number, uchar len);
 	void ParameterInputDisplay(uchar *userParam, float *outval);
 	void NumberToCharTab(uchar Val, uchar* chrp[], uchar* type );
 	void SaveCancel(void);
 	void LCD_ClearLine(uchar lineNum, uchar clearLength);
 
-	
+
 
 #endif
 
