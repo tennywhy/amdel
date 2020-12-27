@@ -179,7 +179,7 @@ All rights reserved.
 	void PswdSetLogic(uchar * pswd[5]);
 	void DispPramOnSecLine(uchar *chr);
 	void DispPramOnThirdLine(uchar *chr);
-	void NumberToChar(uchar *chr);
+	void floatToChar(float *num, char *str);
 	void CharToNumber(uchar *chr[], float *number, uchar len);
 	void ParameterInputDisplay(uchar *userParam, float *outval);
 	void NumberToCharTab(uchar Val, uchar* chrp[], uchar* type );

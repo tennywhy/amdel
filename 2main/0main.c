@@ -315,6 +315,7 @@ void main (void)
 						menu_disp.sub_menu_select_col = 0;
 						menu_disp.pswd_cmp_flag = FALSE;
 						menu_disp.sub_menu_param_status = 0xff;
+						rgtKeyVal = 0;
 						userParamClear();
 					} else {
 						menu_disp.pswd_enter_flag = FALSE;

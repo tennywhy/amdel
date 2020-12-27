@@ -69,7 +69,7 @@
 
 
 	//此数组专门保存当前所有的参数值，应保存在铁电存储中
-	float parameterCurrent[25] = 0.0f;
+	float parameterCurrent[25] = {0.0f};
 
 
 unsigned char code allStringSet[112][16] = {
@@ -451,15 +451,15 @@ void ParamSetLogic(uchar parmCurLine, float *outVal)
 	uchar i=0, *chr, j=0;
 	uint quitioent=0;
 	float paramNum;
+	printf("parmCurLine %d\n", (short)parmCurLine);
 	if (parameterCurrent[parmCurLine] <= parameterSet[parmCurLine][2])
 		paramNum = parameterSet[parmCurLine][0];
 	else
 		paramNum = parameterCurrent[parmCurLine];
 
-	NumberToChar(&paramNum);
-	chr = &paramNumSplit[0];
-	DispPramOnSecLine(chr);
-	ParameterInputDisplay(chr, outVal);
+	floatToChar(&paramNum, paramNumSplit);
+	DispPramOnSecLine(paramNumSplit);
+	ParameterInputDisplay(paramNumSplit, outVal);
 }
 
 //密码显示和处理
@@ -483,78 +483,106 @@ void DispPramOnSecLine(uchar *chr)
 {
 	uchar *chrp,i=0;
 	//uchar j;
-	for(i=0;i<5;i++)
-		{
-//			j=chr[i];
-//			printf("%d \n", (short) j);
-			chrp = &ECTAB[chr[i]];
-			PutChnChar(chrp, 4, 0+i,0,1,1);
-		}
+	for (i = 0; i < 5; i++)	{
+		chrp = &ECTAB[chr[i]];
+		PutChnChar(chrp, 4, 0 + i, 0, 1, 1);
+	}
 }
 
 //将一个总位数为5位的数字按位拆分到一个
 //长度为5的数组里面
 //如302.953 转成 paramNumSplit=[3][0][2][.][9]
-void NumberToChar(float *chr)
-	{
-		float paramNum, paramNumFrc, paramNumInt;
-		uint quitioent, remainder;
-		uint temp[PARAMlENGTH];
-		uchar i=0, j=0;
-		paramNum=*chr;
-		if(paramNum>99999)
-			{
-				paramNum=99999;
-			}
-		else if(paramNum<0.001)
-			{
-				paramNum=0;
-			}
+void floatToChar(float *num, char *str)
+{
+	float paramNum = *num;
+	float paramNumFrc;
+	float numVal;
+	uint paramNumInt;
+	uint quitioent, remainder;
+	uint temp[PARAMlENGTH];
+	uchar i=0, j=0, k = 0;
+	uchar Frc;
+	if  (paramNum > 99999.0f)
+		paramNum = 99999.0f;
+	else if (paramNum < 0.001)
+		paramNum = 0.0f;
 
-		//将paramNum拆分成整数部分paramNumInt和小数部分paramNumFrc
-		paramNumFrc=modf(paramNum, &paramNumInt);
-		//类型转换为uint才能取模
-		quitioent=paramNumInt;
-		//printf("parm i %d \n", (uint) quitioent);
-		//i从1开始，与后面转录匹配
-		for(i=1;i<6;i++)
-			{
+	paramNumFrc = modf(paramNum, &numVal);
+	paramNumInt = (uint)numVal;
+	for (i = 0; i < PARAMlENGTH; i++) {
+		remainder = paramNumInt % 10;
+		if (paramNumInt > 10)
+			paramNumInt = paramNumInt / 10;
 
-				remainder=quitioent%10; //余数
-				quitioent=quitioent/10; //商
-				temp[i-1]=remainder;
-				//商为0时转换结束
-				if(quitioent==0)
-					{
-						break;
-					}
-			}
-		//将上面temp的内容按顺序写到paramNumSplit中
-		for(j=0;i>0;i--)
-			{
-				paramNumSplit[j]=temp[i-1];
-				//printf("parm j %d %d\n", (uint) paramNumSplit[j], (short) j);
-				j++;
-				//printf("parm j %d %d\n", (uint) paramNumSplit[j], (short) j);
-			}
-		//数组未满加小数点 点号为64
-		if(j<5)
-			{
-				paramNumSplit[j]=64;
-				j++;
-			}
-
-		//把小数部分跟在小数点后，如果总位数超过5位就退出
-		for(;j<5;j++)
-			{
-				//类型转换，才能取模运算
-				//小数部分依次乘10取模，填充数组
-				quitioent=paramNumFrc*10;
-				remainder=quitioent%10;
-				paramNumSplit[j]=remainder;
-				///printf("parm i %d \n", (uint) paramNumSplit[j]);
-			}
+		temp[i] = remainder;
+		if (paramNumInt < 10)
+			break;
 	}
+
+	for (j = 0; j <= i; j++)
+		str[j] = temp[i - j];
+
+	Frc = i + 1;
+	if (Frc < PARAMlENGTH) {
+		for (k = 0; k < PARAMlENGTH - Frc; k++) {
+			paramNumFrc = paramNumFrc * 10;
+			temp[k] = (uint)paramNumFrc;
+		}
+
+		str[Frc] = 64;
+		for (j = 1; j < PARAMlENGTH - Frc - 1; j++) {
+			str[Frc + j] = temp[j - 1];
+		}
+	}
+
+#if 0
+	//将paramNum拆分成整数部分paramNumInt和小数部分paramNumFrc
+	//类型转换为uint才能取模
+	quitioent=paramNumInt;
+	//printf("parm i %d \n", (uint) quitioent);
+	//i从1开始，与后面转录匹配
+	for(i=1;i<6;i++)
+		{
+
+			remainder=quitioent%10; //余数
+			quitioent=quitioent/10; //商
+			temp[i-1]=remainder;
+			//商为0时转换结束
+			if(quitioent==0)
+				{
+					break;
+				}
+		}
+	//将上面temp的内容按顺序写到paramNumSplit中
+	for(j=0;i>0;i--)
+		{
+			paramNumSplit[j]=temp[i-1];
+			//printf("parm j %d %d\n", (uint) paramNumSplit[j], (short) j);
+			j++;
+			//printf("parm j %d %d\n", (uint) paramNumSplit[j], (short) j);
+		}
+	//数组未满加小数点 点号为64
+	if(j<5)
+		{
+			paramNumSplit[j]=64;
+			j++;
+		}
+
+	//把小数部分跟在小数点后，如果总位数超过5位就退出
+	for(;j<5;j++)
+		{
+			//类型转换，才能取模运算
+			//小数部分依次乘10取模，填充数组
+			quitioent=paramNumFrc*10;
+			remainder=quitioent%10;
+			paramNumSplit[j]=remainder;
+			///printf("parm i %d \n", (uint) paramNumSplit[j]);
+		}
+	for (j = 0; j < 5; j++) {
+		printf("parm i %d \n", (uint) paramNumSplit[j]);
+	}
+#endif
+}
 
 #define IS_NUM_CHAR(num) (num >= 0 && num <= 9)
  //将数组paramNumSplit[5]的字符转成数字
@@ -582,7 +610,8 @@ void CharToNumber(uchar *chr, float *number, uchar len)
 	if (dotpos == ~0) {
 		dec = 1.0f;
 	} else {
-		dec = pow(10, i - dotpos - 1);
+		uchar power = i - dotpos - 1;
+		power > 0 ? (dec = pow(10, power)) : (dec = 1.0f);
 	}
 
 	paramNum = paramNum / dec;
@@ -638,83 +667,40 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 	uchar numberInput=0,hiLight=0,rgtKeyValLast;
 	uchar i=0, *chrp;
 	float number=0, numberDft=0,nbVal;
-#if 0
-	//uchar save, cancel;
-	if(setKeyValLast != setKeyVal) {
-			userParamInput[0]=userParam[0];
-			userParamInput[1]=userParam[1];
-			userParamInput[2]=userParam[2];
-			userParamInput[3]=userParam[3];
-			userParamInput[4]=userParam[4];
-			rgtKeyVal=0;
-			rgtKeyValLast=0;
-			dwnKeyVal=0;
-			//rgtKeyValLast=0
-			//dwnKeyVal=0;
-		}
-
-		if(rgtKeyVal!= rgtKeyValLast)
-			{dwnKeyVal=0; dwnKeyValLast=0;}
-#endif
-			//printf("dwnkeyk %d\n", (short) dwnKeyVal);
-		for (i = 0; i < PARAMlENGTH; i++)
-			userParamInput[i] = userParam[i];
-
-		//把当前高亮位的输入写入数组内
-		//numberInput = dwnKeyVal%11;
-//		if(numberInput == 10)
-//			{
-//				numberInput=64; //点号
-//			}
-		//printf("rightkey %d %d %d\n", (short) rgtKeyVal, (short) rgtKeyValLast, (short) dwnKeyVal);
-		//转换一次，如果是点号（64）则在数字上表示为10，以便进行显示
-		//点号在数组内存储为64，显示时是10
-		i = rgtKeyVal % PARAMlENGTH;
+	for (i = 0; i < PARAMlENGTH; i++) {
+		userParamInput[i] = userParam[i];
 		if (userParamInput[i] > 10) {
 			userParamInput[i] = 10;
 		}
 
-		//for(i=0;i<PARAMlENGTH;i++) {printf("UP %d\n", (short) userParamInput[i] ); }
-		//i = rgtKeyVal%PARAMlENGTH;
-		//delaym(1);
-		//printf("UPp %d %d %d \n", (short) userParamInput[i], (short) dwnKeyVal, (short) userParam[i]);
-		//printf("userParamInput[%d] %d\n", (short) i, (short) userParamInput[i]);
-		userParamInput[i] = (userParamInput[i] + dwnKpressed)%11;
-#if 0
-		//printf("userParamInput[%d] %d\n", (short) i, (short) userParamInput[i]);
-		//printf("UPp %d %d %d \n", (short) userParamInput[i], (short) dwnKeyVal, (short) userParam[i]);
-		rgtKeyValLast=rgtKeyVal;
-		//for(i=0;i<PARAMlENGTH;i++) {printf("UPX %d\n", (short) userParamInput[i] ); }
-		for (i = 0; i < PARAMlENGTH; i++) {
-			userParam[i] = userParamInput[i];
-		}
-#endif
-		//显示当前值
-		//chrp = &userParamInput;
-		for (i = 0; i < PARAMlENGTH; i++) {
-			uchar charIndex = userParamInput[i];
-			if(userParamInput[i] >= 10)
-				charIndex = 64;
+		printf("userParam[%d] %d\n", (short)i, (short)userParam[i]);
+	}
 
-			chrp = &ECTAB[charIndex];
-			if ((rgtKeyVal %  PARAMlENGTH) == i)
-				hiLight = 1;
+	i = rgtKeyVal % PARAMlENGTH;
 
-			PutChnChar(chrp, 4, 11 + i, 0, 1, hiLight);
-			hiLight =  0;
-		}
+	userParamInput[i] = (userParamInput[i] + dwnKpressed) % 11;
 
-		CharToNumber(userParamInput, &number, sizeof(userParamInput));
+	//显示当前值
+	for (i = 0; i < PARAMlENGTH; i++) {
+		uchar charIndex = userParamInput[i];
+		if(userParamInput[i] >= 10)
+			charIndex = 64;
 
-		if (outval) {
-			if (number < 0.00001)
-				number = 10000000.0f;
-			*outval = number;
-		}
-		//SaveCancel();
+		chrp = &ECTAB[charIndex];
+		if ((rgtKeyVal %  PARAMlENGTH) == i)
+			hiLight = 1;
 
-		//读值并显示
-		//if()
+		PutChnChar(chrp, 4, 11 + i, 0, 1, hiLight);
+		hiLight =  0;
+	}
+
+	CharToNumber(userParamInput, &number, sizeof(userParamInput));
+
+	if (outval) {
+		if (number < 0.00001)
+			number = 10000000.0f;
+		*outval = number;
+	}
 }
 
 
