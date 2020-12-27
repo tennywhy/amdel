@@ -444,6 +444,7 @@ void DisplayLogic(menu_disp_t *disp)
 
 //完成的功能：把参数数字拆分成字符，显示在第三行
 //把输入的字符数字化，存储在变量中
+#define EPS 1e-7
 void ParamSetLogic(uchar parmCurLine, float *outVal)
 {
 	uint remainder=0;
@@ -452,10 +453,13 @@ void ParamSetLogic(uchar parmCurLine, float *outVal)
 	uint quitioent=0;
 	float paramNum;
 	printf("parmCurLine %d\n", (short)parmCurLine);
-	if (parameterCurrent[parmCurLine] <= parameterSet[parmCurLine][2])
+	if (fabs(parameterCurrent[parmCurLine] - parameterSet[parmCurLine][0]) < EPS
+		|| fabs(parameterCurrent[parmCurLine] - parameterSet[parmCurLine][2]) < EPS)
 		paramNum = parameterSet[parmCurLine][0];
 	else
 		paramNum = parameterCurrent[parmCurLine];
+
+	printf("paramNum %f\n", paramNum);
 
 	floatToChar(&paramNum, paramNumSplit);
 	DispPramOnSecLine(paramNumSplit);
@@ -501,6 +505,7 @@ void floatToChar(float *num, char *str)
 	uint quitioent, remainder;
 	uint temp[PARAMlENGTH];
 	uchar i=0, j=0, k = 0;
+	uchar extra = 0;
 	uchar Frc;
 	if  (paramNum > 99999.0f)
 		paramNum = 99999.0f;
@@ -508,21 +513,28 @@ void floatToChar(float *num, char *str)
 		paramNum = 0.0f;
 
 	paramNumFrc = modf(paramNum, &numVal);
-	paramNumInt = (uint)numVal;
+	quitioent = paramNumInt = (uint)numVal;
+	printf("paramNumFrc %f numVal %f paramNumInt %d\n", paramNumFrc, numVal, paramNumInt);
 	for (i = 0; i < PARAMlENGTH; i++) {
-		remainder = paramNumInt % 10;
-		if (paramNumInt > 10)
-			paramNumInt = paramNumInt / 10;
+		remainder = quitioent % 10;
+		quitioent = quitioent / 10;
+
+		if (remainder == 0 && quitioent <= 9) {
+			remainder = quitioent;
+			extra = 1;
+		}
 
 		temp[i] = remainder;
-		if (paramNumInt < 10)
+		if (quitioent <= 9)
 			break;
 	}
 
 	for (j = 0; j <= i; j++)
 		str[j] = temp[i - j];
 
-	Frc = i + 1;
+	printf("i %d\n", (short)i);
+
+	Frc = i + 1 + extra;
 	if (Frc < PARAMlENGTH) {
 		for (k = 0; k < PARAMlENGTH - Frc; k++) {
 			paramNumFrc = paramNumFrc * 10;
@@ -533,6 +545,9 @@ void floatToChar(float *num, char *str)
 		for (j = 1; j < PARAMlENGTH - Frc - 1; j++) {
 			str[Frc + j] = temp[j - 1];
 		}
+	}
+	for (j = 0; j < 5; j++) {
+		printf("parm i %d \n", (uint) str[j]);
 	}
 
 #if 0
