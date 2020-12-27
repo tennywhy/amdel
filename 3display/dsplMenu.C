@@ -502,7 +502,7 @@ void floatToChar(float *num, char *str)
 	float paramNumFrc;
 	float numVal;
 	uint paramNumInt;
-	uint quitioent, remainder;
+	uint quotient, remainder;
 	uint temp[PARAMlENGTH];
 	uchar i=0, j=0, k = 0;
 	uchar extra = 0;
@@ -511,39 +511,44 @@ void floatToChar(float *num, char *str)
 		paramNum = 99999.0f;
 	else if (paramNum < 0.001)
 		paramNum = 0.0f;
-
+	//paramNum = 20.05;
 	paramNumFrc = modf(paramNum, &numVal);
-	quitioent = paramNumInt = (uint)numVal;
+	quotient = paramNumInt = (uint)numVal;
 	printf("paramNumFrc %f numVal %f paramNumInt %d\n", paramNumFrc, numVal, paramNumInt);
 	for (i = 0; i < PARAMlENGTH; i++) {
-		remainder = quitioent % 10;
-		quitioent = quitioent / 10;
+		remainder = quotient % 10;
+		quotient = quotient / 10;
 
-		if (remainder == 0 && quitioent <= 9) {
-			remainder = quitioent;
-			extra = 1;
-		}
+//		if (remainder == 0 && quotient <= 9) {
+//			remainder = quotient;
+//		}
 
 		temp[i] = remainder;
-		if (quitioent <= 9)
+//		printf("temp[i]  %d %d\n", temp[i], quotient);
+
+		if (quotient == 0)
 			break;
 	}
 
-	for (j = 0; j <= i; j++)
+	for (j = 0; j < i; j++)
 		str[j] = temp[i - j];
 
-	printf("i %d\n", (short)i);
+//	printf("i %d\n", (short)i);
 
-	Frc = i + 1 + extra;
-	if (Frc < PARAMlENGTH) {
-		for (k = 0; k < PARAMlENGTH - Frc; k++) {
+	Frc = i + 1;
+	str[Frc] = 64;
+	if (Frc < PARAMlENGTH -  1) {
+		for (k = 0; k < PARAMlENGTH - 1 - Frc; k++) {
 			paramNumFrc = paramNumFrc * 10;
 			temp[k] = (uint)paramNumFrc;
+			paramNumFrc -= temp[k];
+		printf("temp[i]  %d %d\n", temp[k], (short) k);
 		}
 
-		str[Frc] = 64;
-		for (j = 1; j < PARAMlENGTH - Frc - 1; j++) {
+//		str[Frc] = 64;
+		for (j = 1; j < (PARAMlENGTH - Frc); j++) {
 			str[Frc + j] = temp[j - 1];
+			printf("str[Frc + j] %d \n", (uint) str[Frc + j]);
 		}
 	}
 	for (j = 0; j < 5; j++) {
