@@ -7,6 +7,7 @@
 
 #include "..\1head\0common.h"
 #include "main.h"
+#include "dsplMenu.h"
 
 
 
@@ -18,7 +19,7 @@ sfr16 RCAP2    = 0xCA;                 // Timer2 capture/reload
 sfr16 TMR2     = 0xCC;                 // Timer2
 //sbit LED = P1^6;	//LED on DK board
 //sbit LED = P2^2;	//LED on DK board
-//sbit LD6 = P1^6;	
+//sbit LD6 = P1^6;
 sbit TKey = P1^7; //push buttom on DK board
 sbit setKey = P3^3;
 sbit rgtKey = P3^2;
@@ -28,23 +29,23 @@ sbit esckey = P3^0;
 sbit FIN0 = P0^2; //digit pulse Input
 //unsigned char keyVar1 = 0;
 
-#if (0) 
+#if (0)
 	sbit rs  = P2^0;  //LCD_DI
 	sbit rw  = P3^6; // 默认低，接地
 	sbit e	 = P3^7;
 	sbit cs1 = P2^2;
 	sbit lcd_cs2 = P2^1;
-	sbit rst = P2^3;	
+	sbit rst = P2^3;
 #endif
-	
-#if (0) 
+
+#if (0)
 	sbit lcd_cs2 = P2^0;
-	sbit rst = P2^1; 
+	sbit rst = P2^1;
 	sbit rw  = P2^4; // 默认低，接地
 	sbit lcd_en  = P2^6;
-	sbit cs1 = P2^7;	
+	sbit cs1 = P2^7;
 	sbit nBLEN = P3^6;
-	sbit rs  = P3^7;  //LCD_DI	
+	sbit rs  = P3^7;  //LCD_DI
 #endif
 
 unsigned long int LoopNum = 0;
@@ -84,11 +85,11 @@ uchar UART_Output_First = 0;
 uchar TX_Ready =1;
 static char Byte;
 uchar keyVar;
-uchar keyStu=0xff; 
+uchar keyStu=0xff;
 uchar knumber  = 1;
 uchar setKeyVal=0, rgtKeyVal=0, dwnKeyVal=0, escKeyVal=0, passwrdRead=0;
 uchar setKeyValLast=0, rgtKeyValLast=0, dwnKeyValLast=0, escKeyValLast=0xff;
-bit setKpressed = 0, rgtKpressed = 0, dwnKpressed = 0, escKpressed = 0;
+uchar setKpressed = 0, rgtKpressed = 0, dwnKpressed = 0, escKpressed = 0;
 uchar currentStatus = 0x00;
 menu_disp_t menu_disp;
 //-----------------------------------------------------------------------------
@@ -96,6 +97,7 @@ menu_disp_t menu_disp;
 //-----------------------------------------------------------------------------
 
 
+#define EPS 1e-7
 
 void main (void)
 {
@@ -117,7 +119,8 @@ void main (void)
 	menu_disp.sub_menu_disp_flag = FALSE;
 	menu_disp.top_menu_disp_flag = FALSE;
 	menu_disp.pswd_menu_disp_flag = FALSE;
- 
+	menu_disp.sub_menu_param_status = 0xff;
+
     OSCILLATOR_Init ();                 // Initialize oscillator
     PORT_Init ();                       // Initialize crossbar and GPIO
     UART0_Init ();                      // Initialize UART0
@@ -126,61 +129,61 @@ void main (void)
  	// set up Crossbar and GPIO
  	XBR2 = 0x40;						// Enable crossbar and weak pull-ups
  	PRT1CF |= 0x40;						// enable P1.6 (LED) as a push-pull output
- 	PRT2CF |= 0x0F;	
+ 	PRT2CF |= 0x0F;
  	//CheckBusy ();
 
  	Lcd_init();
 	LCD_Clear();
-	
-	//读入参数 
+
+	//读入参数
 	ParmReadIn();
-	
+
 //	Lcd_init();
  	//EA = 1;
  	//printf("init end \n");
    while (1)
-   { 
+   {
    	LoopNum ++;
    	  TI = 1;		// Set transmit flag to 1
-	// 闪烁 LED指示灯	  
+	// 闪烁 LED指示灯
 	  if (0 == LoopNum % 2000)
 		{
 			LED = ~LED;
 		}
-	  
+
 	 //检测按键，并记录按键值
 	  if (0 == LoopNum % 2)
 		{
 			KeyHand();
 			//printf("key exit\n");
 		}
-	  
+
 	  //串口输入
 	  if (0 == LoopNum % 1000)
 		{
 		if ((SCON & 0x02) == 0x02) // Check if transmit flag is set
 			{
-			//LED = ~LED;	 
+			//LED = ~LED;
 			inputcharacter = 0x62;
 			//SBUF = 'b';
 			// printf ("this is good %s", inputcharacter);
 			//printf("I AM A HERO %d \n", LoopNum);
-	  
+
 			//SCON = (SCON & 0xFD);
 			}
-	  
+
 		//printf("I AM A HERO %d", LoopNum);
-	  
+
 		}
-	  
+
 	  //采集脉冲数
 	  if (0 == LoopNum % 3100)
 		{
 		//printf("sample pulse \n");
-	  
+
 		}
-	  
-	  //更新LCD显示  
+
+	  //更新LCD显示
 	  //显示程序由按键驱动，按键有动作则更新显示
 	  if (0 == LoopNum % 1000)
 		{
@@ -198,11 +201,11 @@ void main (void)
 			{ dwnKpressed = 1;}
 		if ( escKeyValLast != escKeyVal )
 			{ escKpressed = 1;}
-			  
-		
-		if ( 
+
+
+		if (
 			(setKeyValLast != setKeyVal)||
-			(rgtKeyValLast != rgtKeyVal)|| 
+			(rgtKeyValLast != rgtKeyVal)||
 			(dwnKeyValLast != dwnKeyVal)||
 			(escKeyValLast != escKeyVal) )
 			{
@@ -210,35 +213,59 @@ void main (void)
 				printf("GOE111\n");
 
 				if (setKpressed) {
+					uchar sts = menu_disp.sub_menu_param_status;
 					uchar menu_disp_flg = menu_disp.menu_disp_flag;
-					if (menu_disp.sub_menu_disp_flag && !menu_disp.sub_menu_enter_flag) {
-						switch (menu_disp.top_menu_disp_status) {
-						case 0:
-							menu_disp.sub_menu_disp_status++;
-							menu_disp.sub_menu_disp_status %= 2;
-							break;
-						case 1:
-							menu_disp.sub_menu_disp_status++;
-							menu_disp.sub_menu_disp_status %= 12;
-							break;
-						case 2:
-							menu_disp.sub_menu_disp_status++;
-							menu_disp.sub_menu_disp_status %= 8;
-							break;
-						default:
-							break;
+					if (menu_disp.sub_menu_disp_flag && menu_disp.sub_menu_enter_flag) {
+						setKeyValLast = setKeyVal = 0;
+						if (sts != 0xff) {
+							printf("sts %d %f %f %f\n", (short)sts, parameterCurrent[sts], parameterSet[sts][2], parameterSet[sts][3]);
+							if (parameterCurrent[sts] >= parameterSet[sts][2]
+						    	&& parameterCurrent[sts] <= parameterSet[sts][3]) {
+
+								menu_disp.pswd_enter_flag = FALSE;
+								menu_disp.sub_menu_enter_flag = FALSE;
+								menu_disp.sub_menu_param_status = 0xff;
+							}
 						}
 					}
+
+					sts = menu_disp.sub_menu_param_status;
+					printf("sts %d\n", (short)sts);
+					if (menu_disp.sub_menu_disp_flag && !menu_disp.sub_menu_enter_flag) {
+						if (sts != 0xff) {
+							if (parameterCurrent[sts] != parameterSet[sts][1]) {
+								menu_disp.sub_menu_enter_flag = TRUE;
+							}
+						} else {
+							switch (menu_disp.top_menu_disp_status) {
+							case 0:
+								menu_disp.sub_menu_disp_status++;
+								menu_disp.sub_menu_disp_status %= 2;
+								break;
+							case 1:
+								menu_disp.sub_menu_disp_status++;
+								menu_disp.sub_menu_disp_status %= 12;
+								break;
+							case 2:
+								menu_disp.sub_menu_disp_status++;
+								menu_disp.sub_menu_disp_status %= 8;
+								break;
+							default:
+								break;
+							}
+						}
+					}
+
 
 					if (!menu_disp_flg && menu_disp.pswd_menu_disp_flag) {
 						if (!menu_disp.top_menu_disp_flag)
 							menu_disp.pswd_cmp_flag = TRUE;
 					}
-					
+
 					if (!menu_disp_flg && menu_disp.top_menu_disp_flag) {
 						menu_disp.pswd_menu_disp_flag = TRUE;
 					}
-					
+
 					//显示顶层菜单
 					if (menu_disp.menu_disp_flag) {
 						menu_disp.menu_disp_flag = FALSE;
@@ -248,12 +275,16 @@ void main (void)
 						menu_disp.pswd_menu_disp_flag = FALSE;
 					}
 				}
-				
+
 				// down key 在3个菜单条间循环
 				if (dwnKpressed) {
+					if (menu_disp.pswd_enter_flag)
+						dwnKpressed = dwnKeyValLast = dwnKeyVal = 0;
+
 					if (!menu_disp.menu_disp_flag
 						&& menu_disp.top_menu_disp_flag
-						&& !menu_disp.pswd_menu_disp_flag) {
+						&& !menu_disp.pswd_menu_disp_flag
+						&& !menu_disp.sub_menu_enter_flag) {
 						menu_disp.top_menu_disp_status++;
 						menu_disp.top_menu_disp_status %= 3;
 						dwnKeyValLast = dwnKeyVal = 0;
@@ -261,15 +292,18 @@ void main (void)
 				}
 
 				if (rgtKpressed) {
+					if (menu_disp.pswd_enter_flag)
+						rgtKpressed = rgtKeyValLast = rgtKeyVal = 0;
+
 					//获取输入参数密码
 					if (menu_disp.pswd_menu_disp_flag) {
-					
+
 					} else if (menu_disp.sub_menu_disp_flag) {
 						//获取子菜单的参数
 					}
 				}
-				
-				if (escKpressed) 
+
+				if (escKpressed)
 				{
 					if (!menu_disp.pswd_enter_flag && !menu_disp.sub_menu_enter_flag) {
 						menu_disp.menu_disp_flag = TRUE;
@@ -280,14 +314,15 @@ void main (void)
 						menu_disp.top_menu_select_row = 1;
 						menu_disp.sub_menu_select_col = 0;
 						menu_disp.pswd_cmp_flag = FALSE;
+						menu_disp.sub_menu_param_status = 0xff;
+						userParamClear();
 					} else {
 						menu_disp.pswd_enter_flag = FALSE;
+						menu_disp.sub_menu_enter_flag = FALSE;
 					}
 
-					if (menu_disp.sub_menu_enter_flag)
-						menu_disp.sub_menu_enter_flag = FALSE;
 				#if 0
-					setKeyVal = 0; 
+					setKeyVal = 0;
 					rgtKeyVal = 0;
 					dwnKeyVal = 0;
 					passwrd = 0;
@@ -297,7 +332,7 @@ void main (void)
 					rgtKpressed = 0;
 					dwnKpressed = 0;
 					escKpressed = 0;
-				
+
 					setKeyValLast = setKeyVal;
 					rgtKeyValLast = rgtKeyVal;
 					dwnKeyValLast = dwnKeyVal;
@@ -305,36 +340,40 @@ void main (void)
 				#endif
 					printf("esc reset start\n");
 				}
-				
+
 				LcdDisplay(&menu_disp);
+				if (menu_disp.sub_menu_enter_flag || menu_disp.pswd_enter_flag) {
+					extern void SaveCancel(void);
+					SaveCancel();
+				}
 				//处理完所有按键事务后清零
 			  setKeyValLast = setKeyVal;
 			  rgtKeyValLast = rgtKeyVal;
 			  dwnKeyValLast = dwnKeyVal;
-			  escKeyValLast = escKeyVal;				
+			  escKeyValLast = escKeyVal;
 				//处理完按键，
 				setKpressed = 0;
 				rgtKpressed = 0;
 				dwnKpressed = 0;
-				escKpressed = 0;	
+				escKpressed = 0;
 			}
-	
+
 		//CheckBusy();
 		}
-	  
+
 	  //计算脉冲输入的计算结果
 	  if (0 == LoopNum % 3300)
 		{
 		//printf("solve result \n");
-	  
+
 		}
-	  
+
 	  //DebugStop();
 	  //parameters refresh
 	  gInitTag++;
 	  gInitTag = gInitTag%200;
 
-		 
+
 
       // If the complete word has been entered via the hyperterminal followed by
       // carriage return
@@ -352,9 +391,9 @@ void s_delay(sec)
 
 	for (j = 0; j < sec*1000; j++)
 	{
-		for (i = 0; i < 256; i++); 
-	} 
-	
+		for (i = 0; i < 256; i++);
+	}
+
 }
 
 
@@ -364,9 +403,9 @@ void ms_delay(ms)
 
 	for (j = 0; j < ms*1; j++)
 	{
-		for (i = 0; i < 256; i++); 
+		for (i = 0; i < 256; i++);
 	}
-	
+
 }
 //-----------------------------------------------------------------------------
 // Initialization Subroutines
@@ -429,7 +468,7 @@ void OSCILLATOR_Init(void)
 void PORT_Init(void)
 {
    XBR0     = 0x04;     // Enable UART0
-   XBR1     = 0x02;		//0x00			
+   XBR1     = 0x02;		//0x00
    XBR2     = 0x40;     // Enable crossbar and weak pull-up
 
    //PRT0CF |= 0x01;      // Set TX pin to push-pull
@@ -463,7 +502,7 @@ void UART0_Init (void)
    //RCAP2 = - ((long) (SYSCLK/BAUDRATE)/33);  //8M/9600/32 = 26
    RCAP2 = - ((long) (SYSCLK/BAUDRATE)/29);  //8M/9600/32 = 26
    //RCAP2 = BAUDRATE/16;  //8M/9600/32 = 26
-   
+
    //RCAP2L = 0x60;    //FFCB C7
    //RCAP2H = 0xFF;
    TMR2 = RCAP2;
@@ -487,16 +526,16 @@ void UART0_Init (void)
 
 void UART0_Interrupt (void) interrupt 4
 {
-   //LED = ~LED;	  
+   //LED = ~LED;
 
 
    if ((SCON & 0x01) == 0x01)    //是否有收刿
    {
-   
-	
+
+
       // Check if a new word is being entered
       if( UART_Buffer_Size == 0)  {
-         UART_Input_First = 0; } 
+         UART_Input_First = 0; }
 
       SCON = (SCON & 0xFE);          //RI1 = 0 清接收标忿;
       //Byte = SBUF;                    // Read a character from Hyperterminal
@@ -511,27 +550,27 @@ void UART0_Interrupt (void) interrupt 4
          UART_Input_First++;            // Update counter
       }
    }
- 
+
 
 
   //TI = 1;
-   //LED = ~LED; 
+   //LED = ~LED;
 
    if ((SCON & 0x02) == 0x02)         // Check if transmit flag is set
    {
-        
+
       SCON = (SCON & 0xFD);
       if (UART_Buffer_Size != 1)        // If buffer not empty
       {
          // Check if a new word is being output
-         if ( UART_Buffer_Size == UART_Input_First )  
+         if ( UART_Buffer_Size == UART_Input_First )
          {
             UART_Output_First = 0;
          }
 
          // Store a character in the variable byte
          Byte = UART_Buffer[UART_Output_First];
-		 
+
 		 Byte = 0x62;
 
          if ((Byte >= 0x61) && (Byte <= 0x7A)) { // If lower case letter
@@ -550,16 +589,16 @@ void UART0_Interrupt (void) interrupt 4
    }
 }
 
-void UART0_tx (void) 
+void UART0_tx (void)
 {
 
    if ((SCON & 0x01) == 0x01)
    {
-   
-	  //LED = ~LED;	 
+
+	  //LED = ~LED;
       // Check if a new word is being entered
       if( UART_Buffer_Size == 0)  {
-         UART_Input_First = 0; } 
+         UART_Input_First = 0; }
 
       SCON = (SCON & 0xFE);          //RI1 = 0;
       //Byte = SBUF;                    // Read a character from Hyperterminal
@@ -574,37 +613,37 @@ void UART0_tx (void)
          UART_Input_First++;            // Update counter
       }
    }
-   
+
   if (UART_Buffer_Size < UART_BUFFERSIZE)
   {
 	 UART_Buffer[UART_Input_First] = 'c';	// Store character
-  
+
 	 UART_Buffer_Size++;			// Update array's size
-  
+
 	 UART_Input_First++;			// Update counter
   }
 
 
   //TI = 1;
-   //LED = ~LED; 
+   //LED = ~LED;
 
    if ((SCON & 0x02) == 0x02)         // Check if transmit flag is set
    {
-        
+
       SCON = (SCON & 0xFD);
       if (UART_Buffer_Size != 1)        // If buffer not empty
       {
 
 
          // Check if a new word is being output
-         if ( UART_Buffer_Size == UART_Input_First )  
+         if ( UART_Buffer_Size == UART_Input_First )
          {
             UART_Output_First = 0;
          }
 
          // Store a character in the variable byte
          Byte = UART_Buffer[UART_Output_First];
-		 
+
 		 Byte = 0x62;
 
          if ((Byte >= 0x61) && (Byte <= 0x7A)) { // If lower case letter
@@ -635,22 +674,22 @@ void print_key (void)
 		TKeyVar = TKey;
 		//test the key
 		//printf("\n ===test key start ==== \n");
-		if ((setKey == 1) && (knumber == 1)) { 
+		if ((setKey == 1) && (knumber == 1)) {
 			//printf("keyNum %d \n",knumber);
 			TKeyVar = 0;
 			knumber++;
 			keyVar = 0x00;}
-		if ((rgtKey == 1) && (knumber == 2)) { 
+		if ((rgtKey == 1) && (knumber == 2)) {
 			//printf("keyNum %d \n",knumber);
 			TKeyVar = 0;
 			knumber++;
 			keyVar = 0x00;}
-		if ((dwnKey == 1) && (knumber == 3)) { 
+		if ((dwnKey == 1) && (knumber == 3)) {
 			//printf("keyNum %d \n",knumber);
 			TKeyVar = 0;
 			knumber++;
 			keyVar = 0x00;}
-		if ((esckey == 1) && (knumber == 4)) { 
+		if ((esckey == 1) && (knumber == 4)) {
 			//printf("keyNum %d \n",knumber);
 
 			knumber=1;
@@ -666,7 +705,7 @@ void read_key(void)
 	//uchar setKeyVal=0, rgtKeyVal=0, dwnKeyVal=0, escKeyVal=0;
 	//低4位对应4个按键上一状态，1未按，0按下
 	//按键状态必须翻转一次才是有效的按键
-	//uchar keyStu=0xff; 
+	//uchar keyStu=0xff;
 	p3L=P3;
 	for(i=0;i<4;i++)
 		{
@@ -675,11 +714,11 @@ void read_key(void)
 				{
 					p3L=0xff;
 					break;
-				}	
+				}
 		}
 	p3L &= 0x0f;  //读取按键状态
 	//printf("%X \n", p3L);
-	// 不允许同时按下两个按键 
+	// 不允许同时按下两个按键
 	//keystu=xxxx set rgt dwn esc
 	if(0x07 == p3L)
 		{
@@ -716,7 +755,7 @@ void read_key(void)
 					i=dwnKeyVal;
 			 		//printf( "dwn %d\n", (short) i);
 				}
-		}	
+		}
 	else if(0x0e == p3L)
 		{
 			i=keyStu&0x01; //上一个状态未按
@@ -730,14 +769,14 @@ void read_key(void)
 				}
 		}
 	else if(!0xff == p3L)
-		{ 
-			//printf( "push one button\n"); 
+		{
+			//printf( "push one button\n");
 		}
-	else { keyStu=0xff; 
+	else { keyStu=0xff;
 			//printf("button reset \n");
 		}
 	//printf("goies111\n");
-	
+
 }
 
 void KeyHand(void)
@@ -748,7 +787,7 @@ void KeyHand(void)
 }
 
 void DebugStop (void)
-{ 
+{
 	while(1);
 }
 
@@ -760,7 +799,7 @@ void ParmReadIn(void)
 	for(i=0;i<25;i++)
 		{
 			parameterCurrent[i] = parameterSet[i][0];
-			
+
 		}
 }
 //-----------------------------------------------------------------------------

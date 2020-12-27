@@ -9,13 +9,11 @@
 	//#include <STARTUP.A51>
 
 
-	extern uint parameterCurrent[30];
-	extern uint parameterCurrentTemp[30];
-
-	extern uint code parameterSet[25][4];
+	extern float parameterCurrent[25];
+	extern float code parameterSet[25][4];
 	extern uchar gInitTag;
 	extern uchar currentStatus;
-	
+
 
 	void s_delay(int sec);
 	void ms_delay(int ms);
@@ -28,7 +26,7 @@
 	void KeyHand(void);
 	void ParmReadIn(void);
 
-	
+
 
 #endif
 
@@ -66,6 +64,6 @@
 
 
 
-	
-	
-	
+
+
+

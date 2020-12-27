@@ -1,7 +1,7 @@
 #ifndef _common_H_
 #define _common_H_
 	// define shot keywords
-	
+
 #include "..\1head\C8051F000.h"   // SFR declarations
 #include "..\1head\stdio.h"
 #include "..\1head\intrins.h"
@@ -26,6 +26,7 @@ typedef struct {
 	uchar pswd_menu_select_col;
 	uchar sub_menu_disp_flag;
 	uchar sub_menu_disp_status;
+	uchar sub_menu_param_status;
 	uchar sub_menu_enter_flag;
 	uchar sub_menu_select_row;
 	uchar sub_menu_select_col;
@@ -74,6 +75,6 @@ void DebugStop (void);
 
 
 
-	
-	
-	
+
+
+

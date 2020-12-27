@@ -167,6 +167,7 @@ All rights reserved.
 
 	extern uchar setKeyVal, rgtKeyVal, dwnKeyVal, escKeyVal ;
 	extern uchar setKeyValLast, rgtKeyValLast, dwnKeyValLast, escKeyValLast;
+	extern uchar setKpressed, rgtKpressed, dwnKpressed, escKpressed;
 
 
 	void StartMenu(void);
@@ -182,8 +183,9 @@ All rights reserved.
 	void CharToNumber(uchar *chr[], float *number, uchar len);
 	void ParameterInputDisplay(uchar *userParam, float *outval);
 	void NumberToCharTab(uchar Val, uchar* chrp[], uchar* type );
-	void SaveCancel(void);
 	void LCD_ClearLine(uchar lineNum, uchar clearLength);
+	void passwordDisplayGet(uchar *passwd);
+	void userParamClear(void);
 
 
 

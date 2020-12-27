@@ -19,12 +19,11 @@
 	#define grd2Menu 4
 	#define grd3Menu 5
 
-	extern bit setKpressed, rgtKpressed, dwnKpressed, escKpressed;
 	extern char currentStatus, passwrdRead;
 	extern struct{unsigned char edot[32];} code CCTAB[];
 	extern struct{unsigned char edot[16];} code ECTAB[];
 	//extern uchar userParamInput[PARAMlENGTH];
-	uchar userParamInput[PARAMlENGTH];
+	uchar userParamInput[PARAMlENGTH] = {0};
 	//uchar userParamInput[PARAMlENGTH];
 
 //	extern uchar CCTAB[32];
@@ -268,6 +267,7 @@ void paswd_disp(menu_disp_t *disp)
 			disp->pswd_enter_flag = FALSE;
 			disp->pswd_menu_disp_flag = FALSE;
 			dwnKeyValLast = dwnKeyVal = 0;
+			userParamClear();
 			sub_menu_disp(disp);
 		} else {
 			//密码错误显示信息
@@ -316,7 +316,7 @@ void paswd_disp(menu_disp_t *disp)
 void sub_menu_disp(menu_disp_t *disp)
 {
 	uchar cur_status = disp->sub_menu_disp_status;
-	uchar colpos = 0;
+	uchar colpos = 0xff;
 
 	switch (disp->top_menu_disp_status) {
 	case 0:  // 进入子菜单1
@@ -325,6 +325,7 @@ void sub_menu_disp(menu_disp_t *disp)
 		StaticDisp(3*4+(cur_status)%2*4,4,3);
 		colpos = cur_status % 2;
 		ParamSetLogic(colpos, &parameterCurrent[colpos]);
+		disp->sub_menu_param_status = colpos;
 		break;
 	case 1:  // 进入子菜单2
 		//passwrd=2;
@@ -332,6 +333,7 @@ void sub_menu_disp(menu_disp_t *disp)
 		StaticDisp(7*4+(cur_status-3)%12*4,4,3);
 		colpos = 2 + (cur_status-3) % 12;
 		ParamSetLogic(colpos, &parameterCurrent[colpos]);
+		disp->sub_menu_param_status = colpos;
 		break;
 	case 2:  // 进入子菜单3
 			//passwrd=3;
@@ -339,23 +341,17 @@ void sub_menu_disp(menu_disp_t *disp)
 		StaticDisp(18*4+(cur_status-3)%8*4,4,3);
 		colpos = 14+(cur_status-3)%8;
 		ParamSetLogic(colpos, &parameterCurrent[colpos]);
+		disp->sub_menu_param_status = colpos;
 		break;
 	default:
 		break;
 	}
 
-	disp->sub_menu_enter_flag = FALSE;
-	if (parameterCurrent[colpos] > parameterSet[colpos][2]
-	    && parameterCurrent[colpos] > parameterSet[colpos][3]) {
-	    if (parameterCurrent[colpos] > parameterSet[colpos][1]) {
-			disp->sub_menu_enter_flag = TRUE;
-			disp->pswd_enter_flag = FALSE;
-	    } else {
-	    	SaveCancel();
-	    }
-	}
+	/* 没获得参数时，保持缺省参数 */
+	if (colpos != 0xff && parameterCurrent[colpos] > 99999.0f)
+		parameterCurrent[colpos] = parameterSet[colpos][0];
 
-	printf("get current %f cur_status %d sub status %d\n", parameterCurrent[colpos], (short)disp->top_menu_disp_status, (short)cur_status);
+	printf("get current %d %f cur_status %d sub status %d\n", (short)colpos, parameterCurrent[colpos], (short)disp->top_menu_disp_status, (short)cur_status);
 	//参数正确需要将disp->sub_menu_enter_flag = FALSE;
 	//参数错误则需要将disp->sub_menu_enter_flag = TRUE;
 }
@@ -454,8 +450,12 @@ void ParamSetLogic(uchar parmCurLine, float *outVal)
 	//uchar paramNumSplit[5];
 	uchar i=0, *chr, j=0;
 	uint quitioent=0;
-	float paramNum, paramNumInt;
-	paramNum=parameterSet[parmCurLine][0];
+	float paramNum;
+	if (parameterCurrent[parmCurLine] <= parameterSet[parmCurLine][2])
+		paramNum = parameterSet[parmCurLine][0];
+	else
+		paramNum = parameterCurrent[parmCurLine];
+
 	NumberToChar(&paramNum);
 	chr = &paramNumSplit[0];
 	DispPramOnSecLine(chr);
@@ -463,7 +463,7 @@ void ParamSetLogic(uchar parmCurLine, float *outVal)
 }
 
 //密码显示和处理
-void PswdSetLogic(uchar * pswd)
+void PswdSetLogic(uchar *pswd)
 {
 	//uint remainder=0;
 	//uchar paramNumSplit[5];
@@ -474,7 +474,7 @@ void PswdSetLogic(uchar * pswd)
 	//NumberToChar(&paramNum);
 //	chr = &pswd;
 	//DispPramOnSecLine(chr);
-	ParameterInputDisplay(pswd, NULL);
+	passwordDisplayGet(pswd);
 	//ParameterInputDisplay(chr);
 }
 
@@ -592,6 +592,40 @@ void CharToNumber(uchar *chr, float *number, uchar len)
 	//printf("param setted %f %d \n", paramNum, dec);
 }
 
+void passwordDisplayGet(uchar *passwd)
+{
+	uchar i = 0;
+	uchar *chrp;
+	uchar hiLight;
+
+	i = rgtKeyVal % PARAMlENGTH;
+	if (userParamInput[i] > 10)
+		userParamInput[i] = 10;
+
+	userParamInput[i] = (userParamInput[i] + dwnKpressed) % 11;
+	for (i = 0; i < PARAMlENGTH; i++)
+		passwd[i] = userParamInput[i];
+
+	for (i = 0; i < PARAMlENGTH; i++) {
+		uchar charIndex = userParamInput[i];
+		if(userParamInput[i] >= 10)
+			charIndex = 64;
+
+		chrp = &ECTAB[charIndex];
+		if ((rgtKeyVal %  PARAMlENGTH) == i)
+			hiLight = 1;
+
+		PutChnChar(chrp, 4, 11 + i, 0, 1, hiLight);
+		hiLight =  0;
+	}
+}
+
+void userParamClear(void)
+{
+	uchar i;
+	for (i = 0; i < 5; i++)
+		userParamInput[i] = 0;
+}
 
 //在第4行显示5个小点占位符，高亮最左位
 //等待用户输入
@@ -604,6 +638,7 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 	uchar numberInput=0,hiLight=0,rgtKeyValLast;
 	uchar i=0, *chrp;
 	float number=0, numberDft=0,nbVal;
+#if 0
 	//uchar save, cancel;
 	if(setKeyValLast != setKeyVal) {
 			userParamInput[0]=userParam[0];
@@ -620,7 +655,10 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 
 		if(rgtKeyVal!= rgtKeyValLast)
 			{dwnKeyVal=0; dwnKeyValLast=0;}
+#endif
 			//printf("dwnkeyk %d\n", (short) dwnKeyVal);
+		for (i = 0; i < PARAMlENGTH; i++)
+			userParamInput[i] = userParam[i];
 
 		//把当前高亮位的输入写入数组内
 		//numberInput = dwnKeyVal%11;
@@ -631,16 +669,18 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 		//printf("rightkey %d %d %d\n", (short) rgtKeyVal, (short) rgtKeyValLast, (short) dwnKeyVal);
 		//转换一次，如果是点号（64）则在数字上表示为10，以便进行显示
 		//点号在数组内存储为64，显示时是10
-		i = rgtKeyVal%PARAMlENGTH;
-		if(userParamInput[i]>10)
-			{userParamInput[i]=10;}
+		i = rgtKeyVal % PARAMlENGTH;
+		if (userParamInput[i] > 10) {
+			userParamInput[i] = 10;
+		}
 
 		//for(i=0;i<PARAMlENGTH;i++) {printf("UP %d\n", (short) userParamInput[i] ); }
 		//i = rgtKeyVal%PARAMlENGTH;
 		//delaym(1);
 		//printf("UPp %d %d %d \n", (short) userParamInput[i], (short) dwnKeyVal, (short) userParam[i]);
 		//printf("userParamInput[%d] %d\n", (short) i, (short) userParamInput[i]);
-		userParamInput[i] = (userParamInput[i]+dwnKeyVal-dwnKeyValLast)%11;
+		userParamInput[i] = (userParamInput[i] + dwnKpressed)%11;
+#if 0
 		//printf("userParamInput[%d] %d\n", (short) i, (short) userParamInput[i]);
 		//printf("UPp %d %d %d \n", (short) userParamInput[i], (short) dwnKeyVal, (short) userParam[i]);
 		rgtKeyValLast=rgtKeyVal;
@@ -648,30 +688,29 @@ void ParameterInputDisplay(uchar *userParam, float *outval)
 		for (i = 0; i < PARAMlENGTH; i++) {
 			userParam[i] = userParamInput[i];
 		}
-
+#endif
 		//显示当前值
 		//chrp = &userParamInput;
-		for(i=0;i<PARAMlENGTH;i++)
-			{
-				uchar charIndex = userParamInput[i];
-				//printf("paramNum %d - %d \n", (short) userParamInput[i], (short) chrp);
-				if(userParamInput[i] >= 10) {charIndex = 64;}
-				chrp = &ECTAB[charIndex];
+		for (i = 0; i < PARAMlENGTH; i++) {
+			uchar charIndex = userParamInput[i];
+			if(userParamInput[i] >= 10)
+				charIndex = 64;
 
-				//chrp = &ECTAB[userParamInput[i]];
-				//printf("paramNum %d - %d \n", (short) userParamInput[i], (short) chrp);
-				if((rgtKeyVal%PARAMlENGTH) == i)
-					{hiLight=1; }
-				//PutChnChar(chrp, 4, (11+i)*8,0,1,hiLight);
-				PutChnChar(chrp, 4, 11+i,0,1,hiLight);
-				hiLight=0;
+			chrp = &ECTAB[charIndex];
+			if ((rgtKeyVal %  PARAMlENGTH) == i)
+				hiLight = 1;
 
-			}
+			PutChnChar(chrp, 4, 11 + i, 0, 1, hiLight);
+			hiLight =  0;
+		}
 
 		CharToNumber(userParamInput, &number, sizeof(userParamInput));
 
-		if (outval)
+		if (outval) {
+			if (number < 0.00001)
+				number = 10000000.0f;
 			*outval = number;
+		}
 		//SaveCancel();
 
 		//读值并显示
