@@ -98,8 +98,6 @@ menu_disp_t menu_disp;
 //-----------------------------------------------------------------------------
 
 
-#define EPS 1e-7
-
 void main (void)
 {
 
@@ -116,10 +114,10 @@ void main (void)
 	menu_disp.sub_menu_disp_status = 0;
 	menu_disp.menu_disp_flag = TRUE        ;
 	menu_disp.pswd_enter_flag = FALSE;
-	menu_disp.sub_menu_enter_flag = FALSE;
 	menu_disp.sub_menu_disp_flag = FALSE;
 	menu_disp.top_menu_disp_flag = FALSE;
 	menu_disp.pswd_menu_disp_flag = FALSE;
+	menu_disp.sub_menu_param_enter = FALSE;
 	menu_disp.sub_menu_param_status = 0xff;
 
     OSCILLATOR_Init ();                 // Initialize oscillator
@@ -217,7 +215,7 @@ void main (void)
 				if (setKpressed) {
 					uchar sts = menu_disp.sub_menu_param_status;
 					uchar menu_disp_flg = menu_disp.menu_disp_flag;
-					if (menu_disp.sub_menu_disp_flag && menu_disp.sub_menu_enter_flag) {
+						if (menu_disp.sub_menu_disp_flag) {
 						setKeyValLast = setKeyVal = 0;
 						if (sts != 0xff) {
 							printf("sts %d %f %f %f\n", (short)sts, parameterCurrent[sts], parameterSet[sts][2], parameterSet[sts][3]);
@@ -225,36 +223,29 @@ void main (void)
 						    	&& parameterCurrent[sts] <= parameterSet[sts][3]) {
 
 								menu_disp.pswd_enter_flag = FALSE;
-								menu_disp.sub_menu_enter_flag = FALSE;
 								menu_disp.sub_menu_param_status = 0xff;
 							}
 						}
 					}
 
 					sts = menu_disp.sub_menu_param_status;
-					printf("sts %d\n", (short)sts);
-					if (menu_disp.sub_menu_disp_flag && !menu_disp.sub_menu_enter_flag) {
-						if (sts != 0xff) {
-							if (parameterCurrent[sts] != parameterSet[sts][1]) {
-								menu_disp.sub_menu_enter_flag = TRUE;
-							}
-						} else {
-							switch (menu_disp.top_menu_disp_status) {
-							case 0:
-								menu_disp.sub_menu_disp_status++;
-								menu_disp.sub_menu_disp_status %= 2;
-								break;
-							case 1:
-								menu_disp.sub_menu_disp_status++;
-								menu_disp.sub_menu_disp_status %= 12;
-								break;
-							case 2:
-								menu_disp.sub_menu_disp_status++;
-								menu_disp.sub_menu_disp_status %= 8;
-								break;
-							default:
-								break;
-							}
+					printf("menu sts %d %d %d\n", (short)sts, (short)menu_disp.sub_menu_disp_flag, (short)menu_disp.sub_menu_param_enter);
+					if (menu_disp.sub_menu_disp_flag && !menu_disp.sub_menu_param_enter) {
+						switch (menu_disp.top_menu_disp_status) {
+						case 0:
+							menu_disp.sub_menu_disp_status++;
+							menu_disp.sub_menu_disp_status %= 2;
+							break;
+						case 1:
+							menu_disp.sub_menu_disp_status++;
+							menu_disp.sub_menu_disp_status %= 12;
+							break;
+						case 2:
+							menu_disp.sub_menu_disp_status++;
+							menu_disp.sub_menu_disp_status %= 8;
+							break;
+						default:
+							break;
 						}
 					}
 
@@ -285,8 +276,7 @@ void main (void)
 
 					if (!menu_disp.menu_disp_flag
 						&& menu_disp.top_menu_disp_flag
-						&& !menu_disp.pswd_menu_disp_flag
-						&& !menu_disp.sub_menu_enter_flag) {
+						&& !menu_disp.pswd_menu_disp_flag) {
 						menu_disp.top_menu_disp_status++;
 						menu_disp.top_menu_disp_status %= 3;
 						dwnKeyValLast = dwnKeyVal = 0;
@@ -307,7 +297,7 @@ void main (void)
 
 				if (escKpressed)
 				{
-					if (!menu_disp.pswd_enter_flag && !menu_disp.sub_menu_enter_flag) {
+					if (!menu_disp.pswd_enter_flag) {
 						menu_disp.menu_disp_flag = TRUE;
 						menu_disp.sub_menu_disp_flag = FALSE;
 						menu_disp.pswd_menu_disp_flag = FALSE;
@@ -321,7 +311,6 @@ void main (void)
 						userParamClear();
 					} else {
 						menu_disp.pswd_enter_flag = FALSE;
-						menu_disp.sub_menu_enter_flag = FALSE;
 					}
 
 				#if 0
@@ -345,10 +334,16 @@ void main (void)
 				}
 
 				LcdDisplay(&menu_disp);
-				if (menu_disp.sub_menu_enter_flag || menu_disp.pswd_enter_flag) {
-					extern void SaveCancel(void);
-					SaveCancel();
+
+				if (setKpressed) {
+					printf("setkey menu sts %d %d\n", (short)menu_disp.sub_menu_disp_flag, (short)menu_disp.sub_menu_param_enter);
+					if (menu_disp.sub_menu_disp_flag && menu_disp.sub_menu_param_enter) {
+						extern void SaveCancel(void);
+						SaveCancel();
+						menu_disp.sub_menu_param_enter = 0;
+					}
 				}
+
 				//处理完所有按键事务后清零
 			  setKeyValLast = setKeyVal;
 			  rgtKeyValLast = rgtKeyVal;

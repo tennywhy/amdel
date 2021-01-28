@@ -266,6 +266,7 @@ void paswd_disp(menu_disp_t *disp)
 			disp->sub_menu_disp_flag = TRUE;
 			disp->pswd_enter_flag = FALSE;
 			disp->pswd_menu_disp_flag = FALSE;
+			disp->sub_menu_param_enter = FALSE;
 			dwnKeyValLast = dwnKeyVal = 0;
 			userParamClear();
 			sub_menu_disp(disp);
@@ -347,13 +348,15 @@ void sub_menu_disp(menu_disp_t *disp)
 		break;
 	}
 
+	printf("set param parameterCurrent[colpos] %f %f\n", parameterCurrent[colpos], fabs(parameterCurrent[colpos] - parameterSet[colpos][0]));
+
 	/* 没获得参数时，保持缺省参数 */
-	if (colpos != 0xff && parameterCurrent[colpos] > 99999.0f)
+	if (colpos != 0xff && (fabs(parameterCurrent[colpos] - parameterSet[colpos][0]) >= 0.0001f)) {
 		parameterCurrent[colpos] = parameterSet[colpos][0];
+		disp->sub_menu_param_enter = TRUE;
+	}
 
 	printf("get current %d %f cur_status %d sub status %d\n", (short)colpos, parameterCurrent[colpos], (short)disp->top_menu_disp_status, (short)cur_status);
-	//参数正确需要将disp->sub_menu_enter_flag = FALSE;
-	//参数错误则需要将disp->sub_menu_enter_flag = TRUE;
 }
 
 void DisplayLogic(menu_disp_t *disp)
@@ -444,7 +447,6 @@ void DisplayLogic(menu_disp_t *disp)
 
 //完成的功能：把参数数字拆分成字符，显示在第三行
 //把输入的字符数字化，存储在变量中
-#define EPS 1e-7
 void ParamSetLogic(uchar parmCurLine, float *outVal)
 {
 	uint remainder=0;
@@ -457,7 +459,7 @@ void ParamSetLogic(uchar parmCurLine, float *outVal)
 		|| fabs(parameterCurrent[parmCurLine] - parameterSet[parmCurLine][2]) < EPS)
 		paramNum = parameterSet[parmCurLine][0];
 	else
-		paramNum = parameterCurrent[parmCurLine];
+		paramNum = parameterSet[parmCurLine][0];
 
 	printf("paramNum %f\n", paramNum);
 
