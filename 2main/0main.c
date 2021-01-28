@@ -7,7 +7,8 @@
 
 #include "..\1head\0common.h"
 #include "main.h"
-#include "dsplMenu.h"
+#include "..\3display\dsplMenu.h"
+#include "..\5msgCalc\i2c.h"
 
 
 
@@ -124,6 +125,7 @@ void main (void)
     OSCILLATOR_Init ();                 // Initialize oscillator
     PORT_Init ();                       // Initialize crossbar and GPIO
     UART0_Init ();                      // Initialize UART0
+    InitI2c();
     //EA = 1;
     TI = 1;		// Set transmit flag to 1
  	// set up Crossbar and GPIO
