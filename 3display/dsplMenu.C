@@ -243,6 +243,30 @@ unsigned char code allStringSet[112][16] = {
 	//{spn(12),chnN,chno,0xff},
 };
 
+/*
+*  获取密度公式SG = STG + (1/ML) * ((ln(S4) - ln(CR)))
+*/
+float cr_calc(float density, float liquid_cr, float input_cr)
+{
+	float ML = 1.0f;
+
+	return density + ((1 / ML) * (log(liquid_cr) - log(input_cr)));
+}
+
+/*
+* 获取浓度公式计算
+*/
+float concentration_calc(float SG, float SSG, float LSG)
+{
+	return (((SG - LSG) * SSG) * 100) / ((SSG - LSG) * SG);
+}
+
+float input_cr_get(void)
+{
+	/* TODO:从IO口中获取 */
+	return 1000.0f;
+}
+
 uchar pswd_cmp(uchar *src, uchar *dest, uchar len)
 {
 	uchar i = 0;

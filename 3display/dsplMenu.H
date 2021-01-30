@@ -186,6 +186,9 @@ All rights reserved.
 	void LCD_ClearLine(uchar lineNum, uchar clearLength);
 	void passwordDisplayGet(uchar *passwd);
 	void userParamClear(void);
+	float cr_calc(float density, float liquid_cr, float input_cr);
+	float concentration_calc(float SG, float SSG, float LSG);
+	float input_cr_get(void);
 
 
 
