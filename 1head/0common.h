@@ -22,13 +22,12 @@ typedef unsigned short ushort;
 #define FALSE 0
 typedef struct {
 	uint top_menu_disp_flag : 1;
-	uint top_menu_disp_status : 1;
+	uint top_menu_disp_status : 3;
 	uint top_menu_select_row : 1;
 	uint pswd_menu_disp_flag : 1;
-	uint pswd_menu_disp_status : 1;
 	uint pswd_menu_select_col : 1;
 	uint sub_menu_disp_flag : 1;
-	uint sub_menu_disp_status : 1;
+	uint sub_menu_disp_status : 4;
 	uint sub_menu_param_status : 6;
 	uint sub_menu_param_enter : 1;
 	uint sub_menu_select_row : 1;
